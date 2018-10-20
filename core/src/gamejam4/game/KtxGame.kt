@@ -1,6 +1,7 @@
 package gamejam4.game
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
@@ -37,6 +38,8 @@ class GameplayScreen : KtxScreen {
     }
 
     private fun update(delta: Float) {
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit()
+
         val randomFloat = Random().nextFloat()
 
         if (randomFloat < 0.1 && zombieManager.zombies.size < 10) {
