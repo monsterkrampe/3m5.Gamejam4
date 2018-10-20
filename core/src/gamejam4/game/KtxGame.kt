@@ -2,21 +2,22 @@ package gamejam4.game
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
+import ktx.math.minus
+import ktx.math.plus
 import java.util.*
 
+class GameplayScreen : KtxScreen, InputProcessor {
 
-class GameplayScreen : KtxScreen {
     private val playerSprite = Texture("player.png")
     private val player = Player(playerSprite, 2f)
     private val zombieManager = ZombieManager()
@@ -34,6 +35,7 @@ class GameplayScreen : KtxScreen {
 
     init {
         stage.addActor(player)
+        Gdx.input.inputProcessor = this
     }
 
     private fun update(delta: Float) {
@@ -74,18 +76,65 @@ class GameplayScreen : KtxScreen {
     }
 
     private fun handleInput(delta: Float) {
-        if (Gdx.input.isKeyPressed(Input.Keys.W))
-            player.y += delta * player.speed
+        player.apply {
+            val w = Gdx.input.isKeyPressed(Input.Keys.W)
+            val a = Gdx.input.isKeyPressed(Input.Keys.A)
+            val s = Gdx.input.isKeyPressed(Input.Keys.S)
+            val d = Gdx.input.isKeyPressed(Input.Keys.D)
 
-        if (Gdx.input.isKeyPressed(Input.Keys.A))
-            player.x -= delta * player.speed
+            val upDown = if (w xor s)
+                if (w) 1f else -1f
+                else 0f
 
-        if (Gdx.input.isKeyPressed(Input.Keys.S))
-            player.y -= delta * player.speed
+            val leftRight = if (a xor d)
+                if (d) 1f else -1f
+                else 0f
 
-        if (Gdx.input.isKeyPressed(Input.Keys.D))
-            player.x += delta * player.speed
+            val vec = Vector2(leftRight, upDown)
+            vec.setLength(delta * player.speed)
+
+            player.position = player.position + vec
+        }
+
     }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        if (button == Input.Buttons.LEFT) {
+            createBullet(
+                stage.screenToStageCoordinates(Vector2(screenX.toFloat(), screenY.toFloat())) - Vector2(player.x, player.y)
+            )
+            return true
+        }
+
+        return false
+    }
+
+    private fun createBullet(vec: Vector2) {
+        vec.normalize()
+        val bullet = Bullet(vec)
+        val offsetVector = vec.clone()
+        offsetVector.setLength(player.width / 2)
+        bullet.x = player.x - bullet.originX + offsetVector.x
+        bullet.y = player.y - bullet.originY + offsetVector.y
+
+        println("bullet")
+
+        stage.addActor(bullet)
+    }
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean = false
+
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean = false
+
+    override fun keyTyped(character: Char): Boolean = false
+
+    override fun scrolled(amount: Int): Boolean  = false
+
+    override fun keyUp(keycode: Int): Boolean  = false
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean  = false
+
+    override fun keyDown(keycode: Int): Boolean  = false
 
     override fun dispose() {
         stage.dispose()
