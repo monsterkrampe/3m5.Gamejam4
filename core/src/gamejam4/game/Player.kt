@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 
 data class Player(val texture: Texture,val speed: Float) : Actor() {
     private val sprite = Sprite(texture)
-    private val healthBar = Texture("badlogic.jpg")
+    private val healthBar = Texture("badlogic.jpg") // WTF?
     var health = 100f
     init {
         setBounds(0f, 0f, 1f, 1f)
