@@ -1,9 +1,12 @@
 package gamejam4.game
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ExtendViewport
@@ -11,16 +14,22 @@ import ktx.app.KtxGame
 import ktx.app.KtxScreen
 import ktx.graphics.use
 import java.util.*
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.GL20
 
 
 class GameplayScreen : KtxScreen {
     private val playerSprite = Texture("player.png")
     private val zombieManager = ZombieManager()
-    private val groundSprite = Texture("ground/default.png")
+    private val groundSprite = Sprite(Texture("ground/default.png"))
 
-    private val stage = Stage(ExtendViewport(20f, 10f))
+    private val viewport = ExtendViewport(20f, 10f)
+    private val stage = Stage(viewport).apply {
+        // static filling will be replaced with dynamic stuff later on
+        for (x in 0..viewport.worldWidth.toInt()) {
+            for (y in 0..viewport.worldHeight.toInt()) {
+                addActor(FloorTile(groundSprite, x.toFloat(), y.toFloat()))
+            }
+        }
+    }
 
     private val font = BitmapFont()
     private val batch = SpriteBatch().apply {
@@ -37,17 +46,16 @@ class GameplayScreen : KtxScreen {
         stage.act(delta)
     }
 
-    private fun draw(delta: Float) {
-//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-
-        // will be deleted later on
-        batch.use {
-            font.draw(it, "Hello Kotlin!", 100f, 100f)
-            it.draw(playerSprite, 300f, 300f)
-            zombieManager.drawZombies(batch)
-        }
-
+    private fun draw() {
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         stage.draw()
+
+        // maybe for gui drawing later
+//        batch.use {
+//            font.draw(it, "Hello Kotlin!", 100f, 100f)
+//            it.draw(playerSprite, 300f, 300f)
+//            zombieManager.drawZombies(batch)
+//        }
     }
 
     override fun resize(width: Int, height: Int) {
@@ -56,7 +64,7 @@ class GameplayScreen : KtxScreen {
 
     override fun render(delta: Float) {
         update(delta)
-        draw(delta)
+        draw()
     }
 
     override fun dispose() {
