@@ -25,7 +25,7 @@ class Zombie(x: Float, y: Float, player: Player) : Actor() {
         addAction(forever(Actions.run {
             if (actionInProgress) return@run
 
-            val distanceVector = vec2(this.x, this.y) - vec2(player.x, player.y)
+            val distanceVector = vec2(player.x, player.y) - vec2(this.x, this.y)
             val distance = distanceVector.len()
 
             val moveAction = sequence(Actions.run { rotation = distanceVector.angle() }, moveTo(player.x, player.y, distance / speed), Actions.run { actionInProgress = false})
