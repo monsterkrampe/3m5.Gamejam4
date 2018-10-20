@@ -17,7 +17,8 @@ data class PointI(val x: Int, val y: Int) {
 
     fun toVector2() = Vector2(x.toFloat(), y.toFloat())
 
-    fun hammingDistanceTo(other: PointI) = abs(x - other.x) + abs(y - other.y)
+    fun maxSingleAxisDistanceTo(other: PointI) = max(abs(x - other.x), abs(y - other.y)).toFloat()
+    fun hammingDistanceTo(other: PointI) = abs(x - other.x) + abs(y - other.y).toFloat()
     fun distanceTo(other: PointI) = other.toVector2().dst(x.toFloat(), y.toFloat())
 }
 

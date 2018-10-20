@@ -15,7 +15,7 @@ class Floor(
         private val stage: Stage
 ) {
     private val batch = SpriteBatch()
-    private val sprites = (1..3).map { Sprite(Texture("ground/default$it.png")) }
+    private val sprites = (1..6).map { Sprite(Texture("ground/default$it.png")) }
     private val highlights = mutableListOf<Highlight>()
 
     fun drawFloorTiles() {
@@ -27,6 +27,7 @@ class Floor(
                 .toWorldSpace()
                 .roundUp()
                 .add(1, 1)
+
         batch.use {
             for (pos in start..end) {
                 val highlightLevel = min(tileHighlightLevel(pos), sprites.size - 1)
@@ -42,14 +43,22 @@ class Floor(
         }
     }
 
-    fun addWaterDropHighlight(
-            pos: PointI,
+    fun addFloorHighlight(
+            origin: PointI,
             maxLifeTime: Float = 1.5f,
             maxRadius: Float = 5f,
-            windowWidth: Float = 1.9f,
-            maxHighlightLevel: Int = 3
+            windowWidth: Float = 2.6f,
+            maxHighlightLevel: Int = 2,
+            highlightType: HighlightType = HighlightType.Circle
     ) {
-        highlights += Highlight(pos, maxLifeTime, maxRadius, windowWidth, maxHighlightLevel)
+        highlights += Highlight(
+                origin,
+                maxLifeTime,
+                maxRadius,
+                windowWidth,
+                maxHighlightLevel,
+                highlightType.distanceFunction
+        )
     }
 
     fun tileHighlightLevel(pos: PointI): Int = highlights
@@ -66,12 +75,19 @@ class Floor(
     private fun Vector2.toScreenSpace() = stage.viewport.project(this)
 }
 
+enum class HighlightType(val distanceFunction: (PointI, PointI) -> Float) {
+    Circle({ a, b -> a.distanceTo(b) }),
+    Diamond({ a, b -> a.hammingDistanceTo(b) }),
+    Square({ a, b -> a.maxSingleAxisDistanceTo(b) }),
+}
+
 private class Highlight(
-        val start: PointI,
+        val origin: PointI,
         val maxLifeTime: Float,
         val maxRadius: Float,
         val windowWidth: Float,
-        val maxHighlightLevel: Int
+        val maxHighlightLevel: Int,
+        val distanceFunction: (PointI, PointI) -> Float
 ) {
     val isDone get() = lifetime >= maxLifeTime
 
@@ -79,7 +95,7 @@ private class Highlight(
     private val segmentWidth = windowWidth / (2 * maxHighlightLevel - 1)
 
     fun highlightLevelOf(pos: PointI): Int {
-        val distanceToOrigin = start.distanceTo(pos)
+        val distanceToOrigin = distanceFunction(origin, pos)
         if (distanceToOrigin > maxRadius) return 0
         val windowCenter = lifetime / maxLifeTime * (maxRadius + windowWidth / 2f)
         val dist = abs(distanceToOrigin - windowCenter)

@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -49,7 +48,18 @@ class GameplayScreen : KtxScreen, InputProcessor {
             stage.addActor(zombieManager.spawnZombieNear(player))
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) floor.addWaterDropHighlight(player.position.round())
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            val ran = Random().nextFloat() * 3f
+            val type = when {
+                ran < 1f -> HighlightType.Circle
+                ran < 2f -> HighlightType.Diamond
+                else -> HighlightType.Square
+            }
+            floor.addFloorHighlight(
+                    origin = player.position.round(),
+                    highlightType = type
+            )
+        }
         floor.update(delta)
         stage.act(delta)
 
