@@ -62,6 +62,8 @@ project(":core") {
         compile group: 'io.github.libktx', name: 'ktx-app', version: '1.9.8-b5'
         compile group: 'io.github.libktx', name: 'ktx-graphics', version: '1.9.8-b5'
         compile group: 'io.github.libktx', name: 'ktx-scene2d', version: '1.9.8-b5'
+        compile group: 'io.github.libktx', name: 'ktx-math', version: '1.9.8-b5'
+        compile group: 'io.github.libktx', name: 'ktx-actors', version: '1.9.8-b5'
     }
 }
 

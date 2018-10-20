@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
-import ktx.graphics.use
 import java.util.*
 
 
@@ -32,23 +31,21 @@ class GameplayScreen : KtxScreen {
         }
     }
 
-    private val font = BitmapFont()
-    private val batch = SpriteBatch().apply {
-        color = Color.WHITE
-    }
-
     private fun update(delta: Float) {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit()
 
         val randomFloat = Random().nextFloat()
 
-        if (randomFloat < 0.1 && zombieManager.zombies.size < 10) {
-            zombieManager.spawnZombieNear(Pair(1000f, 600f))
+        if (randomFloat < 0.02 && stage.actors.filter{it is Zombie}.size < 10) {
+            // should spawn Zombie near player
+            stage.addActor(zombieManager.spawnZombieNear(10f, 5f))
         }
+
+        zombieManager.attack(0f, 0f)
 
         stage.act(delta)
     }
-
+    
     private fun draw() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         stage.draw()
@@ -71,8 +68,7 @@ class GameplayScreen : KtxScreen {
     }
 
     override fun dispose() {
-        font.dispose()
-        batch.dispose()
+        stage.dispose()
     }
 }
 
