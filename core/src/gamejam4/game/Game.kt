@@ -6,20 +6,18 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import ktx.app.clearScreen
 
 class Game : KtxApplicationAdapter {
-    private lateinit var zombies: List<Zombie>
+    private lateinit var zombieManager: ZombieManager
     private lateinit var batch: SpriteBatch
 
     override fun create() {
-        zombies = listOf(Zombie(Pair(0f, 0f)), Zombie(Pair(500f, 500f)))
+        zombieManager = ZombieManager()
         batch = SpriteBatch()
     }
 
     override fun render() {
         clearScreen(0f, 0f, 0f, 1f)
         batch.use {batch ->
-            zombies.forEach {
-                it.draw(batch)
-            }
+            zombieManager.drawZombies(batch)
         }
     }
 
