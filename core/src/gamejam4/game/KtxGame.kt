@@ -43,10 +43,8 @@ class GameplayScreen : KtxScreen {
 
         if (randomFloat < 0.02 && stage.actors.filter{it is Zombie}.size < 10) {
             // should spawn Zombie near player
-            stage.addActor(zombieManager.spawnZombieNear(10f, 5f))
+            stage.addActor(zombieManager.spawnZombieNear(player))
         }
-
-        zombieManager.attack(0f, 0f)
 
         stage.act(delta)
 
