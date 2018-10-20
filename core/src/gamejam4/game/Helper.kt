@@ -1,5 +1,7 @@
 package gamejam4.game
 
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.Actor
 import kotlin.coroutines.experimental.buildIterator
 
 data class PointI(val x: Int, val y: Int) {
@@ -28,3 +30,13 @@ data class RectI(
         }
     }
 }
+
+fun Vector2.clone() = Vector2(this)
+fun Vector2.normalize() = nor()
+
+var Actor.position: Vector2
+    get() = Vector2(x, y)
+    set(value) {
+        x = value.x;
+        y = value.y
+    }
