@@ -22,24 +22,17 @@ import java.util.*
 
 class GameplayScreen : KtxScreen, InputProcessor {
 
-    private val playerSprite = Texture("player.png")
-    private val player = Player(playerSprite, 2f)
-    private val zombieManager = ZombieManager()
-    private val groundSprite = Sprite(Texture("ground/default.png"))
+    private val viewport = ExtendViewport(20f, 10f)
+    private val stage = Stage(viewport)
     private val batch = SpriteBatch().apply {
         color = Color.WHITE
     }
     private val font = BitmapFont()
 
-    private val viewport = ExtendViewport(20f, 10f)
-    private val stage = Stage(viewport).apply {
-        // static filling will be replaced with dynamic stuff later on
-        for (x in 0..viewport.worldWidth.toInt()) {
-            for (y in 0..viewport.worldHeight.toInt()) {
-                addActor(FloorTile(groundSprite, x.toFloat(), y.toFloat()))
-            }
-        }
-    }
+    private val playerSprite = Texture("player.png")
+    private val player = Player(playerSprite, 2f)
+    private val zombieManager = ZombieManager()
+    private val floor = Floor(stage)
 
     init {
         stage.addActor(player)
@@ -56,6 +49,8 @@ class GameplayScreen : KtxScreen, InputProcessor {
             stage.addActor(zombieManager.spawnZombieNear(player))
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) floor.addWaterDropHighlight(player.position.round())
+        floor.update(delta)
         stage.act(delta)
 
         handleInput(delta)
@@ -66,6 +61,7 @@ class GameplayScreen : KtxScreen, InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         if (player.health > 0) {
+            floor.drawFloorTiles()
             stage.draw()
         } else {
             batch.use {

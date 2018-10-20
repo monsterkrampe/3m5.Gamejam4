@@ -3,6 +3,7 @@ package gamejam4.game
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import kotlin.coroutines.experimental.buildIterator
+import kotlin.math.*
 
 data class PointI(val x: Int, val y: Int) {
     operator fun rangeTo(endInclusive: PointI) = RectI(
@@ -11,11 +12,33 @@ data class PointI(val x: Int, val y: Int) {
             endInclusive.x,
             endInclusive.y
     )
+
+    fun add(x: Int, y: Int) = PointI(this.x + x, this.y + y)
+
+    fun toVector2() = Vector2(x.toFloat(), y.toFloat())
+
+    fun hammingDistanceTo(other: PointI) = abs(x - other.x) + abs(y - other.y)
+    fun distanceTo(other: PointI) = other.toVector2().dst(x.toFloat(), y.toFloat())
 }
 
+fun Vector2.round() = PointI(
+        x.roundToInt(),
+        y.roundToInt()
+)
+
+fun Vector2.roundDown() = PointI(
+        x.nextDown().toInt(),
+        y.nextDown().toInt()
+)
+
+fun Vector2.roundUp() = PointI(
+        x.nextUp().toInt(),
+        y.nextUp().toInt()
+)
+
 data class RectI(
-        val startY: Int,
         val startX: Int,
+        val startY: Int,
         val endInclusiveX: Int,
         val endInclusiveY: Int
 ) {
@@ -37,6 +60,6 @@ fun Vector2.normalize() = nor()
 var Actor.position: Vector2
     get() = Vector2(x, y)
     set(value) {
-        x = value.x;
+        x = value.x
         y = value.y
     }
