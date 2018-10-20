@@ -18,6 +18,7 @@ import java.util.*
 
 class GameplayScreen : KtxScreen {
     private val playerSprite = Texture("player.png")
+    private val player = Player(playerSprite, 2f)
     private val zombieManager = ZombieManager()
     private val groundSprite = Sprite(Texture("ground/default.png"))
 
@@ -29,6 +30,10 @@ class GameplayScreen : KtxScreen {
                 addActor(FloorTile(groundSprite, x.toFloat(), y.toFloat()))
             }
         }
+    }
+
+    init {
+        stage.addActor(player)
     }
 
     private fun update(delta: Float) {
@@ -44,8 +49,11 @@ class GameplayScreen : KtxScreen {
         zombieManager.attack(0f, 0f)
 
         stage.act(delta)
+
+        handleInput(delta)
+        stage.camera.position.set(player.x, player.y , stage.camera.position.z)
     }
-    
+
     private fun draw() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         stage.draw()
@@ -65,6 +73,20 @@ class GameplayScreen : KtxScreen {
     override fun render(delta: Float) {
         update(delta)
         draw()
+    }
+
+    private fun handleInput(delta: Float) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W))
+            player.y += delta * player.speed
+
+        if (Gdx.input.isKeyPressed(Input.Keys.A))
+            player.x -= delta * player.speed
+
+        if (Gdx.input.isKeyPressed(Input.Keys.S))
+            player.y -= delta * player.speed
+
+        if (Gdx.input.isKeyPressed(Input.Keys.D))
+            player.x += delta * player.speed
     }
 
     override fun dispose() {
