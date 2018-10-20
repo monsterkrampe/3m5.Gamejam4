@@ -4,9 +4,12 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ExtendViewport
@@ -14,6 +17,7 @@ import ktx.app.KtxGame
 import ktx.app.KtxScreen
 import ktx.math.minus
 import ktx.math.plus
+import ktx.graphics.use
 import java.util.*
 
 class GameplayScreen : KtxScreen, InputProcessor {
@@ -22,6 +26,10 @@ class GameplayScreen : KtxScreen, InputProcessor {
     private val player = Player(playerSprite, 2f)
     private val zombieManager = ZombieManager()
     private val groundSprite = Sprite(Texture("ground/default.png"))
+    private val batch = SpriteBatch().apply {
+        color = Color.WHITE
+    }
+    private val font = BitmapFont()
 
     private val viewport = ExtendViewport(20f, 10f)
     private val stage = Stage(viewport).apply {
@@ -56,14 +64,15 @@ class GameplayScreen : KtxScreen, InputProcessor {
 
     private fun draw() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        stage.draw()
 
-        // maybe for gui drawing later
-//        batch.use {
-//            font.draw(it, "Hello Kotlin!", 100f, 100f)
-//            it.draw(playerSprite, 300f, 300f)
-//            zombieManager.drawZombies(batch)
-//        }
+        if (player.health > 0) {
+            stage.draw()
+        } else {
+            batch.use {
+                font.data.setScale(2f)
+                font.draw(it, "Game Over", 500f, 400f)
+            }
+        }
     }
 
     override fun resize(width: Int, height: Int) {

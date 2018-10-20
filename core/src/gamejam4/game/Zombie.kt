@@ -10,12 +10,12 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
 import ktx.math.minus
 import ktx.math.vec2
 
-class Zombie(x: Float, y: Float, player: Player) : Actor() {
+class Zombie(x: Float, y: Float, val player: Player) : Actor() {
     private val sprite = Sprite(Texture("zombie.png"))
     val speed: Float = 1f
     var actionInProgress = false
-    private var health: Int = 100
-    private val attackDamage: Int = 10
+    private var health: Float = 100f
+    private val attackDamage: Float = 10f
     private val attackRange: Float = 0.1f
 
     init {
@@ -36,7 +36,7 @@ class Zombie(x: Float, y: Float, player: Player) : Actor() {
             val endAction = Actions.run { actionInProgress = false }
 
             val moveAction = sequence(Actions.run { rotation = distanceVector.angle() }, moveTo(player.x, player.y, distance / speed), endAction)
-            val attackAction = sequence(Actions.run { println("attack") }, delay(2f), endAction)
+            val attackAction = sequence(Actions.run { attack() }, delay(2f), endAction)
             val resetActionInProgressAfterDelay = sequence(delay(0.5f), endAction)
 
             if (distance <= attackRange) {
@@ -45,6 +45,10 @@ class Zombie(x: Float, y: Float, player: Player) : Actor() {
                 addAction(parallel(moveAction, resetActionInProgressAfterDelay))
             }
         })))
+    }
+
+    fun attack() {
+        player.health -= attackDamage
     }
 
     override fun draw(batch: Batch, parentAlpha: Float) {
