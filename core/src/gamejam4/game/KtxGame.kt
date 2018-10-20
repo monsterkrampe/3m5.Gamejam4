@@ -8,10 +8,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
 import ktx.graphics.use
+import java.util.*
 
 class GameplayScreen : KtxScreen {
     private val playerSprite = Texture("player.png")
-    private val zombieSprite = Texture("zombie.png")
+    private val zombieManager = ZombieManager()
     private val groundSprite = Texture("ground/default.png")
 
     private val font = BitmapFont()
@@ -20,9 +21,16 @@ class GameplayScreen : KtxScreen {
     }
 
     override fun render(delta: Float) {
+        val randomFloat = Random().nextFloat()
+
+        if (randomFloat < 0.1 && zombieManager.zombies.size < 10) {
+            zombieManager.spawnZombieNear(Pair(1000f, 600f))
+        }
+
         batch.use {
             font.draw(it, "Hello Kotlin!", 100f, 100f)
             it.draw(playerSprite, 300f, 300f)
+            zombieManager.drawZombies(batch)
         }
     }
 
