@@ -34,7 +34,7 @@ class GameplayScreen : KtxScreen {
     private val font = BitmapFont()
 
     private val playerSprite = Texture("player.png")
-    private val player = Player(playerSprite, 2f)
+    private val player = Player(playerSprite, 3.3f)
     private val zombieManager = ZombieManager()
     private val floor = Floor(stage)
     private val random = Random()
@@ -48,7 +48,7 @@ class GameplayScreen : KtxScreen {
                     origin = player.position,
                     highlightType = HighlightType.Circle,
                     inverted = true,
-                    maxLifeTime = 2.5f,
+                    maxLifeTime = 2.3f,
                     windowWidth = 2.4f,
                     maxIntensity = 2.2f,
                     sustainRadius = 10f,
