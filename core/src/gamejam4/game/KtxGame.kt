@@ -32,6 +32,8 @@ const val specialMoveStartingEnergy = 7
 const val specialMoveNeededEnergy = 8
 
 const val wavePushMultiplier = 1.5f
+const val linearWaveTimeShort = 2.2f
+const val linearWaveTimeLong = 5f
 const val zombieSpeed = 2.2f
 const val hugeZombieSpeed = 2f
 const val smallZombieSpeed = 3.5f
@@ -74,6 +76,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
     private var playerCanShot = true
     private var score = 0
     private var specialMoveEnergy = specialMoveStartingEnergy
+    private var linearWaveDirection = -1
 
     init {
         stage.addActor(player)
@@ -84,22 +87,33 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
                     inverted = true,
                     maxLifeTime = 2.3f,
                     windowWidth = 2.4f,
-                    maxIntensity = 2.2f,
+                    maxIntensity = 1.3f,
                     sustainRadius = 10f,
                     releaseRadius = 12f
             )
             if (gameIsRunning) rewindTimer(attractionTimer)
         }
         timer.add(1f) {
+            val x = 20f * linearWaveDirection
+            val y = 2 + random.nextFloat() * 2 * if (random.nextBoolean()) -1 else 1
+
             floor.addWave(LinearWave(
-                    startPoint = player.position + Vector2(20f, 3f),
-                    endPoint = player.position + Vector2(-20f, -3f),
-                    maxIntensity = 1.8f,
+                    startPoint = player.position + Vector2(x, y),
+                    endPoint = player.position + Vector2(-x,  -y),
+                    maxIntensity = 2.2f,
                     windowWidth = 2.5f,
                     sustainRatio = 0.8f,
                     travelTime = 5f
             ))
-            if (gameIsRunning) rewindTimer(2f)
+
+            if (gameIsRunning) {
+                if (random.nextBoolean()) {
+                    linearWaveDirection *= -1
+                    rewindTimer(linearWaveTimeLong)
+                } else {
+                    rewindTimer(linearWaveTimeShort)
+                }
+            }
         }
         timer.add(0.1f) {
             startSound.play()
@@ -226,7 +240,11 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
             floor.addCircularWave(
                     origin = player.position,
                     type = randomWaveType(),
-                    maxIntensity = 3.9f
+                    maxIntensity = 3.3f,
+                    releaseRadius = 9.3f,
+                    sustainRadius = 6.7f,
+                    windowWidth = 3.4f,
+                    maxLifeTime = 3f
             )
         }
 

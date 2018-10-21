@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.actions.Actions.forever
+import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
 import com.badlogic.gdx.scenes.scene2d.actions.MoveByAction
 
 data class Bullet(val vec: Vector2) : Actor() {
@@ -19,7 +19,10 @@ data class Bullet(val vec: Vector2) : Actor() {
         val action = MoveByAction()
         action.setAmount(vec.x * actionLength, vec.y * actionLength)
         action.duration = actionLength
-        addAction(forever(action))
+        addAction(parallel(
+                forever(action),
+                delay(20f, removeActor())
+        ))
     }
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
