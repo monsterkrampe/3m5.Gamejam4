@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -35,8 +36,11 @@ class GameplayScreen : KtxScreen {
     }
     private val font = BitmapFont()
 
-    private val playerSprite = Texture("player.png")
-    private val player = Player(playerSprite, 3.3f)
+    private val player = Player(
+            sprites = (1..6).map { Sprite(Texture("player$it.png")) },
+            speed = 3.3f,
+            highlightLevelGetter = { floor.waveIntensityAt(it) }
+    )
     private val zombieManager = ZombieManager()
     private val floor = Floor(stage)
     private val random = Random()

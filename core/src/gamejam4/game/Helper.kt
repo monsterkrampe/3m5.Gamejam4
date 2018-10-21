@@ -67,6 +67,7 @@ fun Vector2.clone() = Vector2(this)
 fun Vector2.normalize() = nor()
 
 fun Float.clamp(min: Float, max: Float) = max(min, min(max, this))
+fun Int.clamp(min: Int, max: Int) = max(min, min(max, this))
 
 var Actor.position: Vector2
     get() = Vector2(x, y)
