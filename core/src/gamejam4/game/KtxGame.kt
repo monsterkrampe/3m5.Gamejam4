@@ -23,6 +23,7 @@ import java.util.*
 import kotlin.math.max
 
 const val attractionTimer = 3f
+const val raindropTimer = 2.43f
 const val linearWaveTimerShort = 2.2f
 const val linearWaveTimerLong = 5f
 
@@ -101,6 +102,22 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
                     releaseRadius = 12f
             )
             if (gameIsRunning) rewindTimer(attractionTimer)
+        }
+        timer.add(3f) {
+            floor.addCircularWave(
+                    origin = player.position + Vector2(
+                            10f * (random.nextFloat() - 0.5f),
+                            10f * (random.nextFloat() - 0.5f)
+                    ),
+                    type = CircularWaveType.Circle,
+                    inverted = false,
+                    maxLifeTime = 2.3f,
+                    windowWidth = 2.4f,
+                    maxIntensity = 1.3f,
+                    sustainRadius = 10f,
+                    releaseRadius = 12f
+            )
+            if (gameIsRunning) rewindTimer(raindropTimer)
         }
         timer.add(1f) {
             val x = 20f * linearWaveDirection
