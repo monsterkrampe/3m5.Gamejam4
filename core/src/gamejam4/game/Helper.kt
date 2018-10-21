@@ -77,12 +77,6 @@ var Actor.position: Vector2
     }
 
 val Actor.radius
-    get() = this.width / 2
+    get() = this.width * scaleX / 2
 
 fun Actor.intersectsCircle(actor: Actor, delta: Float = 0f) = (this.position - actor.position).len() < (this.radius + actor.radius - delta)
-
-fun Actor.removeMoveSequenceActions() {
-    actions.filter { it is SequenceAction && it.actions.any { nestedAction -> nestedAction is MoveToAction } }.forEach {
-        actions.removeValue(it, true)
-    }
-}
