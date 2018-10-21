@@ -18,8 +18,6 @@ import ktx.app.KtxScreen
 import ktx.math.minus
 import ktx.math.plus
 import ktx.graphics.use
-import ktx.math.div
-import ktx.math.times
 import java.util.*
 
 class GameplayScreen : KtxScreen, InputProcessor {
@@ -77,8 +75,8 @@ class GameplayScreen : KtxScreen, InputProcessor {
 
                 val distVec = Vector2(zombie.x - it.x, zombie.y - it.y)
 
-                val dist = it.vec.dot(distVec) * 3
-                zombie.health -= dist * 25f
+                val dmgRate = it.vec.nor().dot(distVec.nor())
+                zombie.health -= dmgRate * 25f
 
                 if (zombie.health <= 0) {
                     zombie.clearActions()
