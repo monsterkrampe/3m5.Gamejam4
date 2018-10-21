@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
 import ktx.math.minus
 import ktx.math.plus
 import ktx.math.vec2
+import kotlin.math.max
 
 class Zombie(x: Float, y: Float, val player: Player) : Actor() {
     private val sprite = Sprite(Texture("zombie.png"))
@@ -23,14 +24,13 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
         setOrigin(0.5f, 0.5f)
         setPosition(x, y)
 
-        sprite.setScale(1 / sprite.width, 1 / sprite.height)
         sprite.setOriginCenter()
 
         addActionListener()
     }
 
     fun attack() {
-        player.health -= attackDamage
+        player.health = max(player.health - attackDamage, 0f)
 
         addAction(sequence(delay(1f), Actions.run {
             addActionListener()
@@ -68,6 +68,7 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
     }
 
     override fun draw(batch: Batch, parentAlpha: Float) {
+        sprite.setScale((1 / sprite.width) * (health / 200f + 0.5f), (1 / sprite.height) * (health / 200f + 0.5f))
         sprite.rotation = rotation
         sprite.setCenter(x, y)
         sprite.draw(batch)

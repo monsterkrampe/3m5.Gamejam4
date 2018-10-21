@@ -20,6 +20,7 @@ import ktx.math.plus
 import ktx.graphics.use
 import ktx.math.times
 import java.util.*
+import kotlin.math.max
 
 class GameplayScreen : KtxScreen, InputProcessor {
 
@@ -69,7 +70,7 @@ class GameplayScreen : KtxScreen, InputProcessor {
 
         handleInput(delta)
         stage.camera.position.set(player.x, player.y , stage.camera.position.z)
-
+        
         for (zombie in zombies) {
             floor.waveNormalVectorAt(zombie.position)?.let{
                 zombie.bounceToDirection(it * delta)
@@ -80,7 +81,7 @@ class GameplayScreen : KtxScreen, InputProcessor {
                     val distVec = Vector2(zombie.x - it.x, zombie.y - it.y)
 
                     val dmgRate = it.vec.nor().dot(distVec.nor())
-                    zombie.health -= dmgRate * 25f
+                    zombie.health = max(zombie.health - dmgRate * 25f, 0f)
 
                     if (zombie.health <= 0) {
                         zombie.clearActions()
