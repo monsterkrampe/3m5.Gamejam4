@@ -10,11 +10,13 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
 import ktx.math.minus
 import ktx.math.plus
 import ktx.math.vec2
+import kotlin.math.max
 
-class Zombie(x: Float, y: Float, val player: Player) : Actor() {
-    private val sprite = Sprite(Texture("zombie.png"))
-    val speed: Float = 2f
+abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() {
+    protected val sprite = Sprite(Texture("zombie.png"))
+    val speed: Float = 0.3f
     var health: Float = 100f
+    var isDead = false
     private val attackDamage: Float = 10f
     private val attackRange: Float = 1f
 
@@ -23,28 +25,28 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
         setOrigin(0.5f, 0.5f)
         setPosition(x, y)
 
-        sprite.setScale(1 / sprite.width, 1 / sprite.height)
         sprite.setOriginCenter()
 
         addActionListener()
     }
 
     fun attack() {
-        player.health -= attackDamage
+        player.health = max(player.health - attackDamage, 0f)
 
         addAction(sequence(delay(1f), Actions.run {
             addActionListener()
         }))
     }
 
-    fun move(angle: Float, duration: Float) {
-        rotation = angle
-        addAction(parallel(
-                moveTo(player.x, player.y, duration),
-                sequence(delay(0.5f), Actions.run {
-                    clearActions()
+    fun move() {
+        val moveVector = vec2(player.x - x, player.y - y)
+        moveVector.setLength(speed)
+        rotation = moveVector.angle()
+        addAction(sequence(
+                moveTo(x + moveVector.x, y + moveVector.y, 0.1f),
+                Actions.run {
                     addActionListener()
-                })
+                }
         ))
     }
 
@@ -62,14 +64,29 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
             if (distance <= attackRange) {
                 attack()
             } else {
-                move(distanceVector.angle(), distance / speed)
+                move()
             }
         })
     }
 
+    protected abstract fun setDrawingScale()
+
     override fun draw(batch: Batch, parentAlpha: Float) {
+        setDrawingScale()
         sprite.rotation = rotation
         sprite.setCenter(x, y)
         sprite.draw(batch)
+    }
+}
+
+class DefaultZombie(x: Float, y: Float, player: Player) : AbstractZombie(x, y, player) {
+    override fun setDrawingScale() {
+        sprite.setScale((1 / sprite.width) * (health / 200f + 0.5f), (1 / sprite.height) * (health / 200f + 0.5f))
+    }
+}
+
+class BigZombie(x: Float, y: Float, player: Player) : AbstractZombie(x, y, player) {
+    override fun setDrawingScale() {
+        sprite.setScale((1 / sprite.width) / (health / 200f + 0.5f), (1 / sprite.height) / (health / 200f + 0.5f))
     }
 }
