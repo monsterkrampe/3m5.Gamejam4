@@ -2,7 +2,6 @@ package gamejam4.game
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
@@ -19,10 +18,11 @@ import ktx.math.minus
 import ktx.math.plus
 import ktx.graphics.use
 import ktx.math.times
+import ktx.math.vec2
 import java.util.*
 import kotlin.math.max
 
-class GameplayScreen : KtxScreen, InputProcessor {
+class GameplayScreen : KtxScreen {
 
     private val viewport = ExtendViewport(20f, 10f)
     private val stage = Stage(viewport)
@@ -36,17 +36,17 @@ class GameplayScreen : KtxScreen, InputProcessor {
     private val zombieManager = ZombieManager()
     private val floor = Floor(stage)
     private val random = Random()
+    private var bulletCooldown = 0f
 
     init {
         stage.addActor(player)
-        Gdx.input.inputProcessor = this
     }
 
     private fun update(delta: Float) {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit()
 
         val bullets = stage.actors.mapNotNull { it as? Bullet }
-        val zombies = stage.actors.mapNotNull { it as? Zombie }
+        val zombies = stage.actors.mapNotNull { it as? AbstractZombie }
 
         if (random.nextFloat() < 0.01 && zombies.size < 1000) {
             // should spawn Zombie near player
@@ -126,6 +126,8 @@ class GameplayScreen : KtxScreen, InputProcessor {
     }
 
     private fun handleInput(delta: Float) {
+        bulletCooldown = max(bulletCooldown - delta, 0f)
+
         player.apply {
             val w = Gdx.input.isKeyPressed(Input.Keys.W)
             val a = Gdx.input.isKeyPressed(Input.Keys.A)
@@ -145,17 +147,15 @@ class GameplayScreen : KtxScreen, InputProcessor {
 
             player.position = player.position + vec
         }
-    }
 
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        if (button == Input.Buttons.LEFT) {
+        if (bulletCooldown == 0f && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            val xPos = Gdx.input.x.toFloat()
+            val yPos = Gdx.input.y.toFloat()
             createBullet(
-                stage.screenToStageCoordinates(Vector2(screenX.toFloat(), screenY.toFloat())) - Vector2(player.x, player.y)
+                    stage.screenToStageCoordinates(vec2(xPos, yPos)) - vec2(player.x, player.y)
             )
-            return true
+            bulletCooldown = 0.5f
         }
-
-        return false
     }
 
     private fun createBullet(vec: Vector2) {
@@ -168,20 +168,6 @@ class GameplayScreen : KtxScreen, InputProcessor {
 
         stage.addActor(bullet)
     }
-
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean = false
-
-    override fun mouseMoved(screenX: Int, screenY: Int): Boolean = false
-
-    override fun keyTyped(character: Char): Boolean = false
-
-    override fun scrolled(amount: Int): Boolean  = false
-
-    override fun keyUp(keycode: Int): Boolean  = false
-
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean  = false
-
-    override fun keyDown(keycode: Int): Boolean  = false
 
     override fun dispose() {
         stage.dispose()

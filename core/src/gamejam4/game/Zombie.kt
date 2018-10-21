@@ -12,8 +12,8 @@ import ktx.math.plus
 import ktx.math.vec2
 import kotlin.math.max
 
-class Zombie(x: Float, y: Float, val player: Player) : Actor() {
-    private val sprite = Sprite(Texture("zombie.png"))
+abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() {
+    protected val sprite = Sprite(Texture("zombie.png"))
     val speed: Float = 2f
     var health: Float = 100f
     private val attackDamage: Float = 10f
@@ -67,10 +67,24 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
         })
     }
 
+    protected abstract fun setDrawingScale()
+
     override fun draw(batch: Batch, parentAlpha: Float) {
-        sprite.setScale((1 / sprite.width) * (health / 200f + 0.5f), (1 / sprite.height) * (health / 200f + 0.5f))
+        setDrawingScale()
         sprite.rotation = rotation
         sprite.setCenter(x, y)
         sprite.draw(batch)
+    }
+}
+
+class DefaultZombie(x: Float, y: Float, player: Player) : AbstractZombie(x, y, player) {
+    override fun setDrawingScale() {
+        sprite.setScale((1 / sprite.width) * (health / 200f + 0.5f), (1 / sprite.height) * (health / 200f + 0.5f))
+    }
+}
+
+class BigZombie(x: Float, y: Float, player: Player) : AbstractZombie(x, y, player) {
+    override fun setDrawingScale() {
+        sprite.setScale((1 / sprite.width) / (health / 200f + 0.5f), (1 / sprite.height) / (health / 200f + 0.5f))
     }
 }
