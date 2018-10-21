@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
 import ktx.math.minus
+import ktx.math.plus
 import ktx.math.vec2
 
 class Zombie(x: Float, y: Float, val player: Player) : Actor() {
@@ -26,6 +27,26 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
         sprite.setScale(1 / sprite.width, 1 / sprite.height)
         sprite.setOriginCenter()
         
+        addActionListener()
+    }
+
+    fun attack() {
+        player.health -= attackDamage
+    }
+
+    fun bounceToDirection(angle: Float) {
+        clearActions()
+        val bounceVector = vec2(2f)
+        bounceVector.setAngle(angle)
+
+        val newPosVec = vec2(x, y) + bounceVector
+        setPosition(newPosVec.x, newPosVec.y)
+
+        actionInProgress = false
+        addActionListener()
+    }
+
+    private fun addActionListener() {
         addAction(forever(Actions.run {
             if (actionInProgress) return@run
             actionInProgress = true
@@ -45,10 +66,6 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
                 addAction(parallel(moveAction, resetActionInProgressAfterDelay))
             }
         }))
-    }
-
-    fun attack() {
-        player.health -= attackDamage
     }
 
     override fun draw(batch: Batch, parentAlpha: Float) {
