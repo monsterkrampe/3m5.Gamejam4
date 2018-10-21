@@ -28,8 +28,8 @@ const val linearWaveTimerLong = 5f
 
 const val playerSpeed = 3.2f
 const val playerSpeedShooting = 2f
-const val playerAttackCooldown = 0.44f
-const val playerBaseDamage = 30f
+const val playerAttackCooldown = 0.19f
+const val playerBaseDamage = 16f
 const val playerShotSpeed = 5f
 const val specialMoveStartingEnergy = 7
 const val specialMoveNeededEnergy = 8
