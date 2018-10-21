@@ -22,26 +22,29 @@ import java.util.*
 import kotlin.math.max
 
 const val attractionTimer = 3f
+const val linearWaveTimerShort = 2.2f
+const val linearWaveTimerLong = 5f
 
-const val playerSpeed = 3.5f
+const val playerSpeed = 3.2f
 const val playerSpeedShooting = 2f
-const val playerAttackCooldown = 0.2f
+const val playerAttackCooldown = 0.44f
 const val playerBaseDamage = 30f
 const val playerShotSpeed = 5f
 const val specialMoveStartingEnergy = 7
 const val specialMoveNeededEnergy = 8
 
+const val spawnRateMultiplier = 0.5f
+const val spawnRateBase = 0.01f
+const val spawnRateScoreModifier = 0.001f
 const val wavePushMultiplier = 1.5f
-const val linearWaveTimeShort = 2.2f
-const val linearWaveTimeLong = 5f
 const val zombieSpeed = 2.2f
 const val hugeZombieSpeed = 2f
-const val smallZombieSpeed = 3.5f
+const val smallZombieSpeed = 3f
 const val hugeZombieHealth = 500f
 const val smallZombieHealth = 75f
 const val zombieAttackCooldown = 1.3f
 const val zombieAttackDamage = 10f
-const val zombieAttackRange = 1f
+const val zombieAttackRange = 0.8f
 
 class GameplayScreen(val game: TheGame) : KtxScreen {
 
@@ -109,9 +112,9 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
             if (gameIsRunning) {
                 if (random.nextBoolean()) {
                     linearWaveDirection *= -1
-                    rewindTimer(linearWaveTimeLong)
+                    rewindTimer(linearWaveTimerLong)
                 } else {
-                    rewindTimer(linearWaveTimeShort)
+                    rewindTimer(linearWaveTimerShort)
                 }
             }
         }
@@ -128,7 +131,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
         val bullets = stage.actors.mapNotNull { it as? Bullet }
         val zombies = stage.actors.mapNotNull { it as? AbstractZombie }
 
-        if (random.nextFloat() < 0.005 + score * 0.001 && zombies.size < 1000) {
+        if (random.nextFloat() < (spawnRateBase + score * spawnRateScoreModifier) * spawnRateMultiplier && zombies.size < 1000) {
             // should spawn Zombie near player
             stage.addActor(zombieManager.spawnZombieNear(player))
         }
