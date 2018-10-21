@@ -7,9 +7,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import ktx.graphics.use
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
+import ktx.math.minus
+import ktx.math.plus
+import ktx.math.times
+import kotlin.math.*
 
 class Floor(
         private val stage: Stage
@@ -31,7 +32,7 @@ class Floor(
         batch.use {
             for (pos in start..end) {
                 val floatPos = pos.toVector2()
-                val highlightLevel = tileHighlightLevel(floatPos).clamp(0f, sprites.size - 0.05f)
+                val highlightLevel = waveIntensityAt(floatPos).clamp(0f, sprites.size - 0.05f)
                 val highlightIndex = highlightLevel.toInt()
                 val screenSpacePos = floatPos.toScreenSpace()
                 sprites[highlightIndex].apply {
@@ -59,11 +60,16 @@ class Floor(
                 sustainRadius,
                 releaseRadius,
                 windowWidth,
-                highlightType.distanceFunction
+                highlightType
         )
     }
 
-    fun tileHighlightLevel(pos: Vector2): Float = highlights
+    fun waveNormalVectorAt(pos: Vector2): Vector2 = highlights
+            .asSequence()
+            .map { it.normalAt(pos) * it.highlightLevelOf(pos) }
+            .reduce { a, b -> a + b }
+
+    fun waveIntensityAt(pos: Vector2): Float = highlights
             .asSequence()
             .map { it.highlightLevelOf(pos) }
             .sum()
@@ -90,7 +96,7 @@ private class Highlight(
         val sustainRadius: Float,
         val releaseRadius: Float,
         val windowWidth: Float,
-        val distanceFunction: (Vector2, Vector2) -> Float
+        val type: HighlightType
 ) {
     val isDone get() = lifetime >= maxLifeTime
 
@@ -98,12 +104,26 @@ private class Highlight(
     private var windowCenter = 0f
 
     fun highlightLevelOf(pos: Vector2): Float {
-        val distanceToOrigin = distanceFunction(origin, pos)
+        val distanceToOrigin = type.distanceFunction(origin, pos)
         val ratio = (distanceToOrigin - sustainRadius) / (releaseRadius - sustainRadius)
         val maxLocalIntensity = ((1f - ratio) * maxIntensity).clamp(0f, maxIntensity)
         val dist = abs(distanceToOrigin - windowCenter)
         val intensityMultiplier = (1f - dist / windowWidth * 2f).clamp(0f, 1f)
         return maxLocalIntensity * intensityMultiplier
+    }
+
+    fun normalAt(pos: Vector2): Vector2 {
+        val d = pos - origin
+        val v = when (type) {
+            HighlightType.Circle -> d
+            HighlightType.Diamond -> Vector2(sign(d.x), sign(d.y))
+            HighlightType.Square -> if (abs(d.x) > abs(d.y)) {
+                Vector2(sign(d.x), 0f)
+            } else {
+                Vector2(0f, sign(d.y))
+            }
+        }
+        return v.normalize()
     }
 
     fun update(delta: Float) {
