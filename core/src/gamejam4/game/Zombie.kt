@@ -14,11 +14,12 @@ import kotlin.math.max
 abstract class AbstractZombie(
         x: Float,
         y: Float,
-        private val sprites: List<Sprite>,
+        sprites: List<Sprite>,
         private val player: Player,
-        private val timer: Timer
+        private val timer: Timer,
+        var health: Float = 100f,
+        val speed: Float = zombieSpeed
 ) : Actor() {
-    var health: Float = 100f
     var isDead = false
     private var canAttack = true
 
@@ -63,7 +64,7 @@ abstract class AbstractZombie(
 
     fun move(delta: Float) {
         val moveVector = vec2(player.x - x, player.y - y)
-        moveVector.setLength(zombieSpeed * delta)
+        moveVector.setLength(speed * delta)
         rotation = moveVector.angle()
         setPosition(x + moveVector.x, y + moveVector.y)
     }
@@ -81,6 +82,7 @@ abstract class AbstractZombie(
         stateTime += Gdx.graphics.deltaTime
         val sprite = animation.getKeyFrame(stateTime, true)
         sprite.setScale((1 / sprite.width) * scaleX, (1 / sprite.height) * scaleY)
+        sprite.color = color
         sprite.rotation = rotation
         sprite.setCenter(x, y)
         sprite.draw(batch)
@@ -108,5 +110,29 @@ class BigZombie(
 ) : AbstractZombie(x, y, sprites, player, timer) {
     override fun setDrawingScale() {
         setScale(1 / (health / 200f + 0.5f))
+    }
+}
+
+class HugeZombie(
+        x: Float,
+        y: Float,
+        sprites: List<Sprite>,
+        player: Player,
+        timer: Timer
+) : AbstractZombie(x, y, sprites, player, timer, 500f, 2f) {
+    override fun setDrawingScale() {
+        setScale(1 * (health / 200f + 0.5f))
+    }
+}
+
+class SmallZombie(
+        x: Float,
+        y: Float,
+        sprites: List<Sprite>,
+        player: Player,
+        timer: Timer
+) : AbstractZombie(x, y, sprites, player, timer, 75f, 3.5f) {
+    override fun setDrawingScale() {
+        setScale(1 * (health / 200f + 0.5f))
     }
 }

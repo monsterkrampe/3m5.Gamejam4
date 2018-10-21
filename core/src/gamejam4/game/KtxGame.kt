@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
+import ktx.graphics.color
 import ktx.graphics.use
 import ktx.math.*
 import java.util.*
@@ -139,10 +140,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
 
                         zombie.addAction(
                                 sequence(
-                                        repeat(2 * 60, sequence(
-                                                delay(1f / 60),
-                                                rotateBy(20f)
-                                        )),
+                                        color(color(0f, 0f, 0f, 0f), 1f),
                                         removeActor()
                                 )
                         )
@@ -156,6 +154,13 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
                         }
                     } else {
                         enemyHitSound.play()
+                        zombie.addAction(
+                                sequence(
+                                        color(color(0.5f, 1f, 1f, 1f)),
+                                        delay(0.5f),
+                                        color(color(1f, 1f, 1f, 1f))
+                                )
+                        )
                     }
 
                     it.remove()
