@@ -46,6 +46,8 @@ class GameplayScreen : KtxScreen {
     private val random = Random()
     private var playerCanShot = true
     private var score = 0
+    private var specialMoveEenergy = 5
+    private val specialMoveNeededEnergy = 10
 
     init {
         stage.addActor(player)
@@ -88,18 +90,11 @@ class GameplayScreen : KtxScreen {
             stage.addActor(zombieManager.spawnZombieNear(player))
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            floor.addCircularWave(
-                    origin = player.position,
-                    type = randomWaveType()
-            )
-        }
+        handleInput(delta)
 
         timer.update(delta)
         floor.update(delta)
         stage.act(delta)
-
-        handleInput(delta)
         stage.camera.position.set(player.x, player.y, stage.camera.position.z)
 
         for (zombie in zombies) {
@@ -130,6 +125,9 @@ class GameplayScreen : KtxScreen {
                         )
 
                         score++
+                        if (specialMoveEenergy < specialMoveNeededEnergy) {
+                            specialMoveEenergy++
+                        }
                     }
 
                     it.remove()
@@ -172,6 +170,7 @@ class GameplayScreen : KtxScreen {
         batch.use {
             font.data.setScale(1.5f)
             font.draw(it, "Score: 0x" + score.toString(16), 10f, 20f)
+            font.draw(it, "Energy: " + specialMoveEenergy.toString() + " / " + specialMoveNeededEnergy.toString(), 10f, 45f)
         }
     }
 
@@ -185,6 +184,17 @@ class GameplayScreen : KtxScreen {
     }
 
     private fun handleInput(delta: Float) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && specialMoveEenergy == specialMoveNeededEnergy) {
+            specialMoveEenergy = 0
+            floor.addCircularWave(
+                    origin = player.position,
+                    type = randomWaveType(),
+                    maxIntensity = 3.9f
+            )
+        }
+
+        bulletCooldown = max(bulletCooldown - delta, 0f)
+
         player.apply {
             val w = Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)
             val a = Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)
