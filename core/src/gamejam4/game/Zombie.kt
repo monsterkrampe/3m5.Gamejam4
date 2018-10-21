@@ -71,6 +71,7 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player, val timer:
 
     override fun draw(batch: Batch, parentAlpha: Float) {
         setDrawingScale()
+        sprite.setScale((1 / sprite.width) * scaleX, (1 / sprite.height) * scaleY)
         sprite.rotation = rotation
         sprite.setCenter(x, y)
         sprite.draw(batch)
@@ -79,12 +80,12 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player, val timer:
 
 class DefaultZombie(x: Float, y: Float, player: Player, timer: Timer) : AbstractZombie(x, y, player, timer) {
     override fun setDrawingScale() {
-        sprite.setScale((1 / sprite.width) * (health / 200f + 0.5f), (1 / sprite.height) * (health / 200f + 0.5f))
+        setScale(health / 200f + 0.5f)
     }
 }
 
 class BigZombie(x: Float, y: Float, player: Player, timer: Timer) : AbstractZombie(x, y, player, timer) {
     override fun setDrawingScale() {
-        sprite.setScale((1 / sprite.width) / (health / 200f + 0.5f), (1 / sprite.height) / (health / 200f + 0.5f))
+        setScale(1 / (health / 200f + 0.5f))
     }
 }

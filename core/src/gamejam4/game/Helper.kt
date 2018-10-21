@@ -76,6 +76,6 @@ var Actor.position: Vector2
     }
 
 val Actor.radius
-    get() = this.width / 2
+    get() = this.width * scaleX / 2
 
 fun Actor.intersectsCircle(actor: Actor, delta: Float = 0f) = (this.position - actor.position).len() < (this.radius + actor.radius - delta)

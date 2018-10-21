@@ -104,7 +104,7 @@ class GameplayScreen : KtxScreen {
             }
 
             for (it in bullets) {
-                if (it.intersectsCircle(zombie, 0.2f)) {
+                if (it.intersectsCircle(zombie, 0.1f)) {
                     val distVec = Vector2(zombie.x - it.x, zombie.y - it.y)
 
                     val dmgRate = it.vec.nor().dot(distVec.nor())
