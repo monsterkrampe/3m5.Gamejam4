@@ -2,6 +2,8 @@ package gamejam4.game
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
+import ktx.math.minus
+import java.lang.Math.abs
 import kotlin.coroutines.experimental.buildIterator
 import kotlin.math.*
 
@@ -64,3 +66,8 @@ var Actor.position: Vector2
         x = value.x
         y = value.y
     }
+
+val Actor.radius
+    get() = this.width / 2
+
+fun Actor.intersectsCircle(actor: Actor, delta: Float = 0f) = (this.position - actor.position).len() < (this.radius + actor.radius - delta)

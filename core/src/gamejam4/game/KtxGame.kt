@@ -11,12 +11,15 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
 import ktx.math.minus
 import ktx.math.plus
 import ktx.graphics.use
+import ktx.math.div
+import ktx.math.times
 import java.util.*
 
 class GameplayScreen : KtxScreen, InputProcessor {
@@ -65,6 +68,35 @@ class GameplayScreen : KtxScreen, InputProcessor {
 
         handleInput(delta)
         stage.camera.position.set(player.x, player.y , stage.camera.position.z)
+
+        val bullets = stage.actors.mapNotNull { it as? Bullet }
+        val zombies = stage.actors.mapNotNull { it as? Zombie }
+
+        zombies.forEach { zombie -> bullets.forEach {
+            if (it.intersectsCircle(zombie, 0.2f)) {
+
+                val distVec = Vector2(zombie.x - it.x, zombie.y - it.y)
+
+                val dist = it.vec.dot(distVec) * 3
+                zombie.health -= dist * 25f
+
+                if (zombie.health <= 0) {
+                    zombie.clearActions()
+
+                    zombie.addAction(
+                            sequence(
+                                    repeat(2 * 60, sequence(
+                                            delay(1f / 60),
+                                            rotateBy(20f)
+                                    )),
+                                    removeActor()
+                            )
+                    )
+                }
+
+                it.remove()
+            }
+        } }
     }
 
     private fun draw() {
@@ -110,7 +142,6 @@ class GameplayScreen : KtxScreen, InputProcessor {
 
             player.position = player.position + vec
         }
-
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
@@ -131,8 +162,6 @@ class GameplayScreen : KtxScreen, InputProcessor {
         offsetVector.setLength(player.width / 2)
         bullet.x = player.x - bullet.originX + offsetVector.x
         bullet.y = player.y - bullet.originY + offsetVector.y
-
-        println("bullet")
 
         stage.addActor(bullet)
     }

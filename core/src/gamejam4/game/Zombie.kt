@@ -14,7 +14,7 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
     private val sprite = Sprite(Texture("zombie.png"))
     val speed: Float = 2f
     var actionInProgress = false
-    private var health: Float = 100f
+    var health: Float = 100f
     private val attackDamage: Float = 10f
     private val attackRange: Float = 1f
 

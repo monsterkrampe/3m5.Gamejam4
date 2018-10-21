@@ -24,6 +24,4 @@ data class Bullet(val vec: Vector2) : Actor() {
     override fun draw(batch: Batch?, parentAlpha: Float) {
         batch?.draw(texture, x, y, width, height)
     }
-
-
 }
