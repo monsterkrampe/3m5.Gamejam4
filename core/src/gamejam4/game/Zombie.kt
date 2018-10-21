@@ -62,7 +62,7 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player, val timer:
     }
 
     fun bounceToDirection(bounceVector: Vector2) {
-        if (bounceVector.len() == 0f) return
+        if (health <= 0 || bounceVector.len() == 0f) return
 
         setPosition(x + bounceVector.x, y + bounceVector.y)
     }
