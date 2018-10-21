@@ -39,6 +39,10 @@ fun Vector2.roundUp() = PointI(
         y.nextUp().toInt()
 )
 
+fun Vector2.maxSingleAxisDistanceTo(other: Vector2) = max(abs(x - other.x), abs(y - other.y))
+fun Vector2.hammingDistanceTo(other: Vector2) = abs(x - other.x) + abs(y - other.y)
+fun Vector2.distanceTo(other: Vector2) = other.dst(x, y)
+
 data class RectI(
         val startX: Int,
         val startY: Int,
@@ -59,6 +63,8 @@ data class RectI(
 
 fun Vector2.clone() = Vector2(this)
 fun Vector2.normalize() = nor()
+
+fun Float.clamp(min: Float, max: Float) = max(min, min(max, this))
 
 var Actor.position: Vector2
     get() = Vector2(x, y)

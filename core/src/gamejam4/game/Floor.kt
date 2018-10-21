@@ -30,11 +30,11 @@ class Floor(
 
         batch.use {
             for (pos in start..end) {
-                val highlightLevel = min(tileHighlightLevel(pos), sprites.size - 1)
-                val screenSpacePos = pos
-                        .toVector2()
-                        .toScreenSpace()
-                sprites[highlightLevel].apply {
+                val floatPos = pos.toVector2()
+                val highlightLevel = tileHighlightLevel(floatPos).clamp(0f, sprites.size - 0.05f)
+                val highlightIndex = highlightLevel.toInt()
+                val screenSpacePos = floatPos.toScreenSpace()
+                sprites[highlightIndex].apply {
                     setScale(1f / width * stage.viewport.screenWidth / stage.viewport.worldWidth)
                     setCenter(screenSpacePos.x, screenSpacePos.y)
                     draw(batch)
@@ -44,24 +44,26 @@ class Floor(
     }
 
     fun addFloorHighlight(
-            origin: PointI,
-            maxLifeTime: Float = 1.5f,
-            maxRadius: Float = 5f,
-            windowWidth: Float = 2.6f,
-            maxHighlightLevel: Int = 2,
+            origin: Vector2,
+            maxLifeTime: Float = 1.2f,
+            maxIntensity: Float = 3.5f,
+            sustainRadius: Float = 5f,
+            releaseRadius: Float = 8f,
+            windowWidth: Float = 2.8f,
             highlightType: HighlightType = HighlightType.Circle
     ) {
         highlights += Highlight(
                 origin,
                 maxLifeTime,
-                maxRadius,
+                maxIntensity,
+                sustainRadius,
+                releaseRadius,
                 windowWidth,
-                maxHighlightLevel,
                 highlightType.distanceFunction
         )
     }
 
-    fun tileHighlightLevel(pos: PointI): Int = highlights
+    fun tileHighlightLevel(pos: Vector2): Float = highlights
             .asSequence()
             .map { it.highlightLevelOf(pos) }
             .sum()
@@ -75,35 +77,37 @@ class Floor(
     private fun Vector2.toScreenSpace() = stage.viewport.project(this)
 }
 
-enum class HighlightType(val distanceFunction: (PointI, PointI) -> Float) {
+enum class HighlightType(val distanceFunction: (Vector2, Vector2) -> Float) {
     Circle({ a, b -> a.distanceTo(b) }),
     Diamond({ a, b -> a.hammingDistanceTo(b) }),
     Square({ a, b -> a.maxSingleAxisDistanceTo(b) }),
 }
 
 private class Highlight(
-        val origin: PointI,
+        val origin: Vector2,
         val maxLifeTime: Float,
-        val maxRadius: Float,
+        val maxIntensity: Float,
+        val sustainRadius: Float,
+        val releaseRadius: Float,
         val windowWidth: Float,
-        val maxHighlightLevel: Int,
-        val distanceFunction: (PointI, PointI) -> Float
+        val distanceFunction: (Vector2, Vector2) -> Float
 ) {
     val isDone get() = lifetime >= maxLifeTime
 
     private var lifetime = 0f
-    private val segmentWidth = windowWidth / (2 * maxHighlightLevel - 1)
+    private var windowCenter = 0f
 
-    fun highlightLevelOf(pos: PointI): Int {
+    fun highlightLevelOf(pos: Vector2): Float {
         val distanceToOrigin = distanceFunction(origin, pos)
-        if (distanceToOrigin > maxRadius) return 0
-        val windowCenter = lifetime / maxLifeTime * (maxRadius + windowWidth / 2f)
+        val ratio = (distanceToOrigin - sustainRadius) / (releaseRadius - sustainRadius)
+        val maxLocalIntensity = ((1f - ratio) * maxIntensity).clamp(0f, maxIntensity)
         val dist = abs(distanceToOrigin - windowCenter)
-        val level = maxHighlightLevel - (dist / segmentWidth + 0.5f).toInt()
-        return max(level, 0)
+        val intensityMultiplier = (1f - dist / windowWidth * 2f).clamp(0f, 1f)
+        return maxLocalIntensity * intensityMultiplier
     }
 
     fun update(delta: Float) {
         lifetime += delta
+        windowCenter = lifetime / maxLifeTime * releaseRadius
     }
 }

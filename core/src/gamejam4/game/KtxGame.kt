@@ -57,7 +57,7 @@ class GameplayScreen : KtxScreen, InputProcessor {
                 else -> HighlightType.Square
             }
             floor.addFloorHighlight(
-                    origin = player.position.round(),
+                    origin = player.position,
                     highlightType = type
             )
         }
