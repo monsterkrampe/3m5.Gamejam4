@@ -3,6 +3,7 @@ package gamejam4.game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
@@ -43,11 +44,13 @@ const val zombieAttackRange = 1f
 
 class GameplayScreen(val game: TheGame) : KtxScreen {
 
+    private val music = music("music/game.ogg")
+
     private val startSound = sound("sound/start.wav")
     private val endSound = sound("sound/game over.wav")
 
     private val playerHitSound = sound("sound/player hit.wav")
-    private val playerShootSound = sound("sound/shot.wav", 0.25f)
+    private val playerShootSound = sound("sound/shot.wav", 0.55f)
     private val playerSpecialReadySound = sound("sound/special ready.wav")
     private val playerSpecialUsedSound = sound("sound/special.wav")
 
@@ -66,7 +69,10 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
             sprites = (1..6).map { Sprite(Texture("player$it.png")) },
             highlightLevelGetter = { floor.waveIntensityAt(it) },
             onHit = { playerHitSound.play() },
-            onDeath = { endSound.play() }
+            onDeath = {
+                endSound.play()
+                music.stop()
+            }
     )
     private val zombieManager = ZombieManager(timer)
     private val floor = Floor(stage)
@@ -103,6 +109,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
         }
         timer.add(0.1f) {
             startSound.play()
+            music.play()
         }
     }
 

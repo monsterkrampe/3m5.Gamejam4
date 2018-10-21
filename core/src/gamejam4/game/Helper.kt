@@ -92,3 +92,8 @@ fun sound(path: String, volume: Float = 1f) = SoundWithVolume(
         volume
 )
 
+fun music(path: String, volume: Float = 1f) =
+        Gdx.audio.newMusic(Gdx.files.internal(path)).also {
+            it.volume = volume
+            it.isLooping = true
+        }

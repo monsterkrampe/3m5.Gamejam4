@@ -14,6 +14,8 @@ import ktx.graphics.use
 
 class MenuScreen(val game: TheGame, val previousGameResult: PreviousGameResult?) : KtxScreen, InputProcessor {
 
+    private val music = music("music/menu.ogg")
+
     private val blip1Sound = sound("sound/menu blip.wav")
     private val blip2Sound = sound("sound/menu blip 2.wav")
 
@@ -33,10 +35,16 @@ class MenuScreen(val game: TheGame, val previousGameResult: PreviousGameResult?)
             ))
             rewindTimer(13f)
         }
+        timer.add(0.1f) {
+            music.play()
+        }
     }
 
     private val items = ZipList(listOf(
-            MenuItem("Start") { it.start() },
+            MenuItem("Start") {
+                music.stop()
+                it.start()
+            },
             MenuItem("Quit") {Gdx.app.exit()}
     ))
 
