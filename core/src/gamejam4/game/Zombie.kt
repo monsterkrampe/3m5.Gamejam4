@@ -12,20 +12,27 @@ import ktx.math.minus
 import ktx.math.vec2
 import kotlin.math.max
 
-abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() {
-    protected val sprite = Sprite(Texture("zombie.png"))
+abstract class AbstractZombie(
+        x: Float,
+        y: Float,
+        private val sprites: List<Sprite>,
+        private val player: Player
+) : Actor() {
     val speed: Float = 0.3f
     var health: Float = 100f
     var isDead = false
     private val attackDamage: Float = 10f
     private val attackRange: Float = 1f
+    private var spriteIndex = 0
+
+    val sprite get() = sprites[spriteIndex]
 
     init {
         setBounds(0f, 0f, 1f, 1f)
         setOrigin(0.5f, 0.5f)
         setPosition(x, y)
 
-        sprite.setOriginCenter()
+        sprites.forEach { it.setOriginCenter() }
 
         addActionListener()
     }
@@ -86,14 +93,30 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() 
     }
 }
 
-class DefaultZombie(x: Float, y: Float, player: Player) : AbstractZombie(x, y, player) {
+class DefaultZombie(
+        x: Float,
+        y: Float,
+        sprites: List<Sprite>,
+        player: Player
+) : AbstractZombie(x, y, sprites, player) {
     override fun setDrawingScale() {
-        sprite.setScale((1 / sprite.width) * (health / 200f + 0.5f), (1 / sprite.height) * (health / 200f + 0.5f))
+        sprite.setScale(
+                (1 / sprite.width) * (health / 200f + 0.5f),
+                (1 / sprite.height) * (health / 200f + 0.5f)
+        )
     }
 }
 
-class BigZombie(x: Float, y: Float, player: Player) : AbstractZombie(x, y, player) {
+class BigZombie(
+        x: Float,
+        y: Float,
+        sprites: List<Sprite>,
+        player: Player
+) : AbstractZombie(x, y, sprites, player) {
     override fun setDrawingScale() {
-        sprite.setScale((1 / sprite.width) / (health / 200f + 0.5f), (1 / sprite.height) / (health / 200f + 0.5f))
+        sprite.setScale(
+                (1 / sprite.width) / (health / 200f + 0.5f),
+                (1 / sprite.height) / (health / 200f + 0.5f)
+        )
     }
 }
