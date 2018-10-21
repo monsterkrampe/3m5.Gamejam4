@@ -9,6 +9,6 @@ class ZombieManager {
         val randomMinusY = if (Random().nextBoolean()) 1 else -1
         val randomX = Random().nextFloat() * 5
         val randomY = Random().nextFloat() * 5
-        return Zombie(player.x + randomMinusX * (4f + randomX), player.y + randomMinusY * (4f + randomY), player)
+        return Zombie(player.x + randomMinusX * (11f + randomX), player.y + randomMinusY * (6f + randomY), player)
     }
 }
