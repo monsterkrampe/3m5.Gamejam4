@@ -43,7 +43,6 @@ class GameplayScreen : KtxScreen {
 
     init {
         stage.addActor(player)
-        Gdx.input.inputProcessor = this
         Timer.add(1f) {
             floor.addFloorHighlight(
                     origin = player.position,
