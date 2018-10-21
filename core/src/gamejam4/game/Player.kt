@@ -34,6 +34,7 @@ data class Player(
         val index = intensity.toInt().clamp(0, sprites.size - 1)
         val sprite = sprites[index]
         sprite.setScale((1 / sprite.width) * (health / 100f), (1 / sprite.height) * (health / 100f))
+        sprite.color = color
         sprite.setOriginCenter()
         sprite.rotation = rotation
         sprite.setCenter(x, y)
