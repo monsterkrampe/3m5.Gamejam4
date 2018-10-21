@@ -97,7 +97,7 @@ class MenuScreen(val game: TheGame) : KtxScreen, InputProcessor {
                     releaseRadius = 8f,
                     windowWidth = 2.8f,
                     inverted = false,
-                    type = HighlightType.Circle
+                    type = CircularWaveType.Circle
             ))
         }
 

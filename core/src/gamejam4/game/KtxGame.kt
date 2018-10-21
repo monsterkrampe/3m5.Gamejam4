@@ -23,6 +23,7 @@ import java.util.*
 import kotlin.math.max
 
 private const val attractionTimer = 3f
+private const val wavePushMultiplier = 0.3f
 
 class GameplayScreen : KtxScreen {
 
@@ -47,7 +48,7 @@ class GameplayScreen : KtxScreen {
         timer.add(1f) {
             floor.addCircularWave(
                     origin = player.position,
-                    highlightType = HighlightType.Circle,
+                    type = CircularWaveType.Circle,
                     inverted = true,
                     maxLifeTime = 2.3f,
                     windowWidth = 2.4f,
@@ -84,15 +85,9 @@ class GameplayScreen : KtxScreen {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            val ran = random.nextFloat() * 3f
-            val type = when {
-                ran < 1f -> HighlightType.Circle
-                ran < 2f -> HighlightType.Diamond
-                else -> HighlightType.Square
-            }
             floor.addCircularWave(
                     origin = player.position,
-                    highlightType = type
+                    type = randomWaveType()
             )
         }
 
@@ -101,11 +96,11 @@ class GameplayScreen : KtxScreen {
         stage.act(delta)
 
         handleInput(delta)
-        stage.camera.position.set(player.x, player.y , stage.camera.position.z)
+        stage.camera.position.set(player.x, player.y, stage.camera.position.z)
 
         for (zombie in zombies) {
-            floor.waveNormalVectorAt(zombie.position)?.let{
-                zombie.bounceToDirection(it * delta)
+            floor.waveNormalVectorAt(zombie.position)?.let {
+                zombie.bounceToDirection(it * delta * wavePushMultiplier)
             }
 
             for (it in bullets) {
@@ -117,6 +112,7 @@ class GameplayScreen : KtxScreen {
 
                     if (zombie.health <= 0 && !zombie.isDead) {
                         zombie.isDead = true
+                        addZombieDeathWaves(zombie)
                         zombie.clearActions()
 
                         zombie.addAction(
@@ -136,6 +132,24 @@ class GameplayScreen : KtxScreen {
                 }
             }
         }
+    }
+
+    private fun randomWaveType() = CircularWaveType
+            .values()
+            .let { it[random.nextInt(it.size)] }
+
+    private fun addZombieDeathWaves(zombie: AbstractZombie) {
+        val type = randomWaveType()
+        floor.addWave(CircularWave(
+                origin = zombie.position,
+                type = type,
+                maxIntensity = 3.9f,
+                windowWidth = 3.4f,
+                sustainRadius = 4.5f,
+                releaseRadius = 8f,
+                maxLifeTime = 7f,
+                inverted = false
+        ))
     }
 
     private fun draw() {
@@ -177,11 +191,11 @@ class GameplayScreen : KtxScreen {
 
             val upDown = if (w xor s)
                 if (w) 1f else -1f
-                else 0f
+            else 0f
 
             val leftRight = if (a xor d)
                 if (d) 1f else -1f
-                else 0f
+            else 0f
 
             val vec = Vector2(leftRight, upDown)
             vec.setLength(delta * player.speed)

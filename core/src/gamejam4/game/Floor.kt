@@ -53,7 +53,7 @@ class Floor(
             sustainRadius: Float = 5f,
             releaseRadius: Float = 8f,
             windowWidth: Float = 2.8f,
-            highlightType: HighlightType = HighlightType.Circle,
+            type: CircularWaveType = CircularWaveType.Circle,
             inverted: Boolean = false
     ) {
         waves += CircularWave(
@@ -63,7 +63,7 @@ class Floor(
                 sustainRadius,
                 releaseRadius,
                 windowWidth,
-                highlightType,
+                type,
                 inverted
         )
     }
@@ -134,7 +134,7 @@ class LinearWave(
 
 }
 
-enum class HighlightType(val distanceFunction: (Vector2, Vector2) -> Float) {
+enum class CircularWaveType(val distanceFunction: (Vector2, Vector2) -> Float) {
     Circle({ a, b -> a.distanceTo(b) }),
     Diamond({ a, b -> a.hammingDistanceTo(b) }),
     Square({ a, b -> a.maxSingleAxisDistanceTo(b) }),
@@ -147,7 +147,7 @@ class CircularWave(
         private val sustainRadius: Float,
         private val releaseRadius: Float,
         private val windowWidth: Float,
-        private val type: HighlightType,
+        private val type: CircularWaveType,
         private val inverted: Boolean
 ) : Wave() {
     override val isDone get() = lifetime >= maxLifeTime
@@ -167,9 +167,9 @@ class CircularWave(
     override fun normalAt(pos: Vector2): Vector2 {
         val d = pos - origin
         val v = when (type) {
-            HighlightType.Circle -> d
-            HighlightType.Diamond -> Vector2(sign(d.x), sign(d.y))
-            HighlightType.Square -> if (abs(d.x) > abs(d.y)) {
+            CircularWaveType.Circle -> d
+            CircularWaveType.Diamond -> Vector2(sign(d.x), sign(d.y))
+            CircularWaveType.Square -> if (abs(d.x) > abs(d.y)) {
                 Vector2(sign(d.x), 0f)
             } else {
                 Vector2(0f, sign(d.y))
