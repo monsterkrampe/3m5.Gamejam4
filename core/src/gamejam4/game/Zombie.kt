@@ -119,7 +119,7 @@ class HugeZombie(
         sprites: List<Sprite>,
         player: Player,
         timer: Timer
-) : AbstractZombie(x, y, sprites, player, timer, 500f, 2f) {
+) : AbstractZombie(x, y, sprites, player, timer, hugeZombieHealth, hugeZombieSpeed) {
     override fun setDrawingScale() {
         setScale(1 * (health / 200f + 0.5f))
     }
@@ -131,7 +131,7 @@ class SmallZombie(
         sprites: List<Sprite>,
         player: Player,
         timer: Timer
-) : AbstractZombie(x, y, sprites, player, timer, 75f, 3.5f) {
+) : AbstractZombie(x, y, sprites, player, timer, smallZombieHealth, smallZombieSpeed) {
     override fun setDrawingScale() {
         setScale(1 * (health / 200f + 0.5f))
     }
