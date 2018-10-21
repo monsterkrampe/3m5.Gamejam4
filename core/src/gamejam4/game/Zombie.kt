@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
+import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
 import ktx.math.minus
 import ktx.math.plus
 import ktx.math.vec2
@@ -31,18 +33,12 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() 
         addActionListener()
     }
 
-    fun actionCreator(parallelAction: Boolean = false, function: () -> Action) {
+    fun actionCreator(function: () -> Action) {
         if (health > 0) {
             val action = function()
-            if (parallelAction) {
-                addAction(parallel(action, Actions.run {
-                    addActionListener()
-                }))
-            } else {
-                addAction(sequence(action, Actions.run {
-                    addActionListener()
-                }))
-            }
+            addAction(sequence(action, Actions.run {
+                addActionListener()
+            }))
         }
     }
 
@@ -62,9 +58,13 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() 
     }
 
     fun bounceToDirection(bounceVector: Vector2) {
-        actionCreator(true) {
-            clearActions()
-            moveTo(x + bounceVector.x, y + bounceVector.y, 0f)
+        if (bounceVector.len() == 0f) return
+
+        actionCreator {
+            actions.mapNotNull { it as? SequenceAction }.filter { it.actions.any { it is MoveToAction } }.forEach {
+                actions.removeValue(it, true)
+            }
+            moveTo(x + bounceVector.x, y + bounceVector.y)
         }
     }
 
