@@ -35,4 +35,7 @@ class ZipList<T>(list: List<T>) {
             index++
         }
     }
+
+    val index: Int
+        get() = before.size
 }
