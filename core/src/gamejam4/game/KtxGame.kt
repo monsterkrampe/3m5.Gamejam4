@@ -216,7 +216,15 @@ class GameplayScreen : KtxScreen {
 }
 
 class TheGame : KtxGame<Screen>() {
+
     override fun create() {
+        addScreen(MenuScreen(this))
+        setScreen<MenuScreen>()
+    }
+
+    fun start() {
+        Gdx.input.inputProcessor = null
+        screens.clear()
         addScreen(GameplayScreen())
         setScreen<GameplayScreen>()
     }
