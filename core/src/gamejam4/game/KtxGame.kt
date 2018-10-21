@@ -32,7 +32,7 @@ const val zombieAttackCooldown = 1.3f
 const val zombieAttackDamage = 10f
 const val zombieAttackRange = 1f
 
-class GameplayScreen : KtxScreen {
+class GameplayScreen(val game: TheGame) : KtxScreen {
 
     private val timer = Timer()
     private val viewport = ExtendViewport(20f, 10f)
@@ -51,6 +51,8 @@ class GameplayScreen : KtxScreen {
     private val random = Random()
     private var playerCanShot = true
     private var score = 0
+    private var specialMoveEenergy = 5
+    private val specialMoveNeededEnergy = 10
 
     init {
         stage.addActor(player)
@@ -93,18 +95,11 @@ class GameplayScreen : KtxScreen {
             stage.addActor(zombieManager.spawnZombieNear(player))
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            floor.addCircularWave(
-                    origin = player.position,
-                    type = randomWaveType()
-            )
-        }
+        handleInput(delta)
 
         timer.update(delta)
         floor.update(delta)
         stage.act(delta)
-
-        handleInput(delta)
         stage.camera.position.set(player.x, player.y, stage.camera.position.z)
 
         for (zombie in zombies) {
@@ -135,11 +130,18 @@ class GameplayScreen : KtxScreen {
                         )
 
                         score++
+                        if (specialMoveEenergy < specialMoveNeededEnergy) {
+                            specialMoveEenergy++
+                        }
                     }
 
                     it.remove()
                 }
             }
+        }
+
+        if (!gameIsRunning) {
+            game.menu(PreviousGameResult(score))
         }
     }
 
@@ -164,19 +166,13 @@ class GameplayScreen : KtxScreen {
     private fun draw() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
-        if (gameIsRunning) {
-            floor.drawFloorTiles()
-            stage.draw()
-        } else {
-            batch.use {
-                font.data.setScale(2f)
-                font.draw(it, "Game Over", 500f, 400f)
-            }
-        }
+        floor.drawFloorTiles()
+        stage.draw()
 
         batch.use {
             font.data.setScale(1.5f)
             font.draw(it, "Score: 0x" + score.toString(16), 10f, 20f)
+            font.draw(it, "Energy: " + specialMoveEenergy.toString() + " / " + specialMoveNeededEnergy.toString(), 10f, 45f)
         }
     }
 
@@ -190,6 +186,15 @@ class GameplayScreen : KtxScreen {
     }
 
     private fun handleInput(delta: Float) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && specialMoveEenergy == specialMoveNeededEnergy) {
+            specialMoveEenergy = 0
+            floor.addCircularWave(
+                    origin = player.position,
+                    type = randomWaveType(),
+                    maxIntensity = 3.9f
+            )
+        }
+
         player.apply {
             val w = Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)
             val a = Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)
@@ -242,14 +247,22 @@ class GameplayScreen : KtxScreen {
 class TheGame : KtxGame<Screen>() {
 
     override fun create() {
-        addScreen(MenuScreen(this))
+        addScreen(MenuScreen(this, null))
         setScreen<MenuScreen>()
     }
 
     fun start() {
         Gdx.input.inputProcessor = null
         screens.clear()
-        addScreen(GameplayScreen())
+        addScreen(GameplayScreen(this))
         setScreen<GameplayScreen>()
     }
+
+    fun menu(previousGameResult: PreviousGameResult?) {
+        screens.clear()
+        addScreen(MenuScreen(this, previousGameResult))
+        setScreen<MenuScreen>()
+    }
 }
+
+data class PreviousGameResult(val score: Int)

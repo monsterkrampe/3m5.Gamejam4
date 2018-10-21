@@ -12,8 +12,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
-class MenuScreen(val game: TheGame) : KtxScreen, InputProcessor {
-
+class MenuScreen(val game: TheGame, val previousGameResult: PreviousGameResult?) : KtxScreen, InputProcessor {
     private val stage = Stage(ExtendViewport(20f, 10f))
     private val floor = Floor(stage)
     private val timer = Timer()
@@ -66,8 +65,15 @@ class MenuScreen(val game: TheGame) : KtxScreen, InputProcessor {
 
             font.data.setScale(1.0f)
 
-            font.draw(it, "Selection [W] and [S] or Up and Down arrow keys, [Enter] start or quit", 60f, 45f)
-            font.draw(it, "Gameplay [W] [A] [S] {D] for movement, [LButton} for shooting", 60f, 25f)
+            font.draw(it, "Selection [W] and [S] or Up and Down arrow keys, [Enter] start or quit", 60f, 75f)
+            font.draw(it, "Gameplay [W] [A] [S] {D] for movement, [LButton} for shooting, [SPCAE] for special skill", 60f, 55f)
+
+            if (previousGameResult != null) {
+                font.data.setScale(3.8f)
+                font.draw(it, "GAME OVER", stage.viewport.screenWidth / 2f - 165f, stage.viewport.screenHeight / 2 + 220f)
+                font.data.setScale(1.5f)
+                font.draw(it, "Score: 0x" + previousGameResult.score.toString(16), stage.viewport.screenWidth / 2f - 55f, stage.viewport.screenHeight / 2 + 148f)
+            }
         }
     }
 

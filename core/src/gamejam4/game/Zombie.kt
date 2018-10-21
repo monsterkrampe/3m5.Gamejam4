@@ -1,9 +1,12 @@
 package gamejam4.game
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.utils.Array
 import ktx.math.minus
 import ktx.math.vec2
 import kotlin.math.max
@@ -19,8 +22,8 @@ abstract class AbstractZombie(
     var isDead = false
     private var canAttack = true
 
-    private var spriteIndex = 0
-    private val sprite get() = sprites[spriteIndex]
+    private val animation = Animation<Sprite>(0.2f, Array(sprites.toTypedArray()))
+    private var stateTime = 0f
 
     init {
         setBounds(0f, 0f, 1f, 1f)
@@ -75,6 +78,8 @@ abstract class AbstractZombie(
 
     override fun draw(batch: Batch, parentAlpha: Float) {
         setDrawingScale()
+        stateTime += Gdx.graphics.deltaTime
+        val sprite = animation.getKeyFrame(stateTime, true)
         sprite.setScale((1 / sprite.width) * scaleX, (1 / sprite.height) * scaleY)
         sprite.rotation = rotation
         sprite.setCenter(x, y)
