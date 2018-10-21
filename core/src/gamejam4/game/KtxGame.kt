@@ -37,10 +37,10 @@ class GameplayScreen : KtxScreen {
 
     private val playerSprite = Texture("player.png")
     private val player = Player(playerSprite, 3.3f)
-    private val zombieManager = ZombieManager()
+    private val zombieManager = ZombieManager(timer)
     private val floor = Floor(stage)
     private val random = Random()
-    private var bulletCooldown = 0f
+    private var playerCanShot = true
     private var score = 0
 
     init {
@@ -79,7 +79,7 @@ class GameplayScreen : KtxScreen {
         val bullets = stage.actors.mapNotNull { it as? Bullet }
         val zombies = stage.actors.mapNotNull { it as? AbstractZombie }
 
-        if (random.nextFloat() < 0.01 && zombies.size < 1000) {
+        if (random.nextFloat() < 0.005 + score * 0.001  && zombies.size < 1000) {
             // should spawn Zombie near player
             stage.addActor(zombieManager.spawnZombieNear(player))
         }
@@ -181,8 +181,6 @@ class GameplayScreen : KtxScreen {
     }
 
     private fun handleInput(delta: Float) {
-        bulletCooldown = max(bulletCooldown - delta, 0f)
-
         player.apply {
             val w = Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)
             val a = Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)
@@ -203,13 +201,16 @@ class GameplayScreen : KtxScreen {
             player.position = player.position + vec
         }
 
-        if (bulletCooldown == 0f && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+        if (playerCanShot && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
             val xPos = Gdx.input.x.toFloat()
             val yPos = Gdx.input.y.toFloat()
             createBullet(
                     stage.screenToStageCoordinates(vec2(xPos, yPos)) - vec2(player.x, player.y)
             )
-            bulletCooldown = 0.5f
+            playerCanShot = false
+            timer.add(0.5f) {
+                playerCanShot = true
+            }
         }
     }
 
