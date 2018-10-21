@@ -14,7 +14,7 @@ import kotlin.math.max
 
 abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() {
     protected val sprite = Sprite(Texture("zombie.png"))
-    val speed: Float = 2f
+    val speed: Float = 0.3f
     var health: Float = 100f
     private val attackDamage: Float = 10f
     private val attackRange: Float = 1f
@@ -37,14 +37,15 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() 
         }))
     }
 
-    fun move(angle: Float, duration: Float) {
-        rotation = angle
-        addAction(parallel(
-                moveTo(player.x, player.y, duration),
-                sequence(delay(0.5f), Actions.run {
-                    clearActions()
+    fun move() {
+        val moveVector = vec2(player.x - x, player.y - y)
+        moveVector.setLength(speed)
+        rotation = moveVector.angle()
+        addAction(sequence(
+                moveTo(x + moveVector.x, y + moveVector.y, 0.1f),
+                Actions.run {
                     addActionListener()
-                })
+                }
         ))
     }
 
@@ -62,7 +63,7 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() 
             if (distance <= attackRange) {
                 attack()
             } else {
-                move(distanceVector.angle(), distance / speed)
+                move()
             }
         })
     }

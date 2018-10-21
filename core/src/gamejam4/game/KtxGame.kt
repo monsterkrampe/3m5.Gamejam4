@@ -32,7 +32,7 @@ class GameplayScreen : KtxScreen {
     private val font = BitmapFont()
 
     private val playerSprite = Texture("player.png")
-    private val player = Player(playerSprite, 10.5f)
+    private val player = Player(playerSprite, 2f)
     private val zombieManager = ZombieManager()
     private val floor = Floor(stage)
     private val random = Random()
