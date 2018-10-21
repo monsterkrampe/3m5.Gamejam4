@@ -1,6 +1,6 @@
 package gamejam4.game
 
-object Timer {
+class Timer {
     private val timers = mutableListOf<TimerElement>()
 
     fun add(delay: Float, callback: TimerBody.() -> Unit) {

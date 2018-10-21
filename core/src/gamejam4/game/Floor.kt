@@ -7,10 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import ktx.graphics.use
-import ktx.math.minus
-import ktx.math.plus
-import ktx.math.times
-import ktx.math.unaryMinus
+import ktx.math.*
 import kotlin.math.*
 
 class Floor(
@@ -18,7 +15,7 @@ class Floor(
 ) {
     private val batch = SpriteBatch()
     private val sprites = (1..6).map { Sprite(Texture("ground/default$it.png")) }
-    private val highlights = mutableListOf<Highlight>()
+    private val waves = mutableListOf<Wave>()
 
     fun drawFloorTiles() {
         val start = Vector2(0f, Gdx.graphics.height.toFloat())
@@ -45,7 +42,11 @@ class Floor(
         }
     }
 
-    fun addFloorHighlight(
+    fun addWave(wave: Wave) {
+        waves += wave
+    }
+
+    fun addCircularWave(
             origin: Vector2,
             maxLifeTime: Float = 1.2f,
             maxIntensity: Float = 3.5f,
@@ -55,7 +56,7 @@ class Floor(
             highlightType: HighlightType = HighlightType.Circle,
             inverted: Boolean = false
     ) {
-        highlights += Highlight(
+        waves += CircularWave(
                 origin,
                 maxLifeTime,
                 maxIntensity,
@@ -67,23 +68,70 @@ class Floor(
         )
     }
 
-    fun waveNormalVectorAt(pos: Vector2): Vector2? = highlights
-            .map { it.normalAt(pos) * it.highlightLevelOf(pos) }
+    fun waveNormalVectorAt(pos: Vector2): Vector2? = waves
+            .map { it.normalAt(pos) * it.intensityAt(pos) }
             .let { if (it.isEmpty()) null else it }
             ?.reduce { a, b -> a + b }
 
-    fun waveIntensityAt(pos: Vector2): Float = highlights
+    fun waveIntensityAt(pos: Vector2): Float = waves
             .asSequence()
-            .map { it.highlightLevelOf(pos) }
+            .map { it.intensityAt(pos) }
             .sum()
 
     fun update(delta: Float) {
-        highlights.forEach { it.update(delta) }
-        highlights.removeAll { it.isDone }
+        waves.forEach { it.update(delta) }
+        waves.removeAll { it.isDone }
     }
 
     private fun Vector2.toWorldSpace() = stage.viewport.unproject(this)
     private fun Vector2.toScreenSpace() = stage.viewport.project(this)
+}
+
+sealed class Wave {
+    abstract val isDone: Boolean
+    abstract fun intensityAt(pos: Vector2): Float
+    abstract fun normalAt(pos: Vector2): Vector2
+    abstract fun update(delta: Float)
+}
+
+class LinearWave(
+        private val startPoint: Vector2,
+        endPoint: Vector2,
+        private val windowWidth: Float,
+        private val maxIntensity: Float,
+        private val travelTime: Float,
+        private val sustainRatio: Float
+) : Wave() {
+    private val travelVector = endPoint - startPoint
+    private val travelDistance = travelVector.len()
+    private val normal = travelVector / travelDistance
+
+    private var lifeTime = 0f
+    private var currPoint = startPoint
+    private var currPointDistance = 0f
+    private var currIntensity = 0f
+
+    override val isDone: Boolean get() = lifeTime >= travelTime
+
+    override fun intensityAt(pos: Vector2): Float {
+        val startToPos = pos - startPoint
+        val distanceToWindowCenter = abs(startToPos.dot(normal) - currPointDistance)
+        val intensityMultiplier = (1f - distanceToWindowCenter / windowWidth * 2f).clamp(0f, 1f)
+        return intensityMultiplier * currIntensity
+    }
+
+    override fun normalAt(pos: Vector2): Vector2 = normal
+
+    override fun update(delta: Float) {
+        lifeTime += delta
+        val ratio = lifeTime / travelTime
+        currPoint = startPoint + travelVector * ratio
+        currPointDistance = travelDistance * ratio
+        val slope = maxIntensity * 2f / (1f - sustainRatio)
+        val x = 1f - abs(ratio - 0.5f)
+        currIntensity = (x * slope).clamp(0f, maxIntensity)
+    }
+
 }
 
 enum class HighlightType(val distanceFunction: (Vector2, Vector2) -> Float) {
@@ -92,22 +140,22 @@ enum class HighlightType(val distanceFunction: (Vector2, Vector2) -> Float) {
     Square({ a, b -> a.maxSingleAxisDistanceTo(b) }),
 }
 
-private class Highlight(
-        val origin: Vector2,
-        val maxLifeTime: Float,
-        val maxIntensity: Float,
-        val sustainRadius: Float,
-        val releaseRadius: Float,
-        val windowWidth: Float,
-        val type: HighlightType,
-        val inverted: Boolean
-) {
-    val isDone get() = lifetime >= maxLifeTime
+class CircularWave(
+        private val origin: Vector2,
+        private val maxLifeTime: Float,
+        private val maxIntensity: Float,
+        private val sustainRadius: Float,
+        private val releaseRadius: Float,
+        private val windowWidth: Float,
+        private val type: HighlightType,
+        private val inverted: Boolean
+) : Wave() {
+    override val isDone get() = lifetime >= maxLifeTime
 
     private var lifetime = 0f
     private var windowCenter = 0f
 
-    fun highlightLevelOf(pos: Vector2): Float {
+    override fun intensityAt(pos: Vector2): Float {
         val distanceToOrigin = type.distanceFunction(origin, pos)
         val ratio = (distanceToOrigin - sustainRadius) / (releaseRadius - sustainRadius)
         val maxLocalIntensity = (1f - ratio * maxIntensity).clamp(0f, maxIntensity)
@@ -116,7 +164,7 @@ private class Highlight(
         return maxLocalIntensity * intensityMultiplier
     }
 
-    fun normalAt(pos: Vector2): Vector2 {
+    override fun normalAt(pos: Vector2): Vector2 {
         val d = pos - origin
         val v = when (type) {
             HighlightType.Circle -> d
@@ -131,7 +179,7 @@ private class Highlight(
         return if (inverted) -v else v
     }
 
-    fun update(delta: Float) {
+    override fun update(delta: Float) {
         lifetime += delta
         val ratio = if (inverted) 1f - lifetime / maxLifeTime else lifetime / maxLifeTime
         windowCenter = ratio * releaseRadius

@@ -26,6 +26,7 @@ private const val attractionTimer = 3f
 
 class GameplayScreen : KtxScreen {
 
+    private val timer = Timer()
     private val viewport = ExtendViewport(20f, 10f)
     private val stage = Stage(viewport)
     private val batch = SpriteBatch().apply {
@@ -43,8 +44,8 @@ class GameplayScreen : KtxScreen {
 
     init {
         stage.addActor(player)
-        Timer.add(1f) {
-            floor.addFloorHighlight(
+        timer.add(1f) {
+            floor.addCircularWave(
                     origin = player.position,
                     highlightType = HighlightType.Circle,
                     inverted = true,
@@ -55,6 +56,17 @@ class GameplayScreen : KtxScreen {
                     releaseRadius = 12f
             )
             if (gameIsRunning) rewindTimer(attractionTimer)
+        }
+        timer.add(1f) {
+            floor.addWave(LinearWave(
+                    startPoint = player.position + Vector2(20f, 3f),
+                    endPoint = player.position + Vector2(-20f, -3f),
+                    maxIntensity = 1.8f,
+                    windowWidth = 2.5f,
+                    sustainRatio = 0.8f,
+                    travelTime = 5f
+            ))
+            if (gameIsRunning) rewindTimer(2f)
         }
     }
 
@@ -78,13 +90,13 @@ class GameplayScreen : KtxScreen {
                 ran < 2f -> HighlightType.Diamond
                 else -> HighlightType.Square
             }
-            floor.addFloorHighlight(
+            floor.addCircularWave(
                     origin = player.position,
                     highlightType = type
             )
         }
 
-        Timer.update(delta)
+        timer.update(delta)
         floor.update(delta)
         stage.act(delta)
 
