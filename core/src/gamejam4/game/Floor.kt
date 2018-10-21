@@ -10,6 +10,7 @@ import ktx.graphics.use
 import ktx.math.minus
 import ktx.math.plus
 import ktx.math.times
+import ktx.math.unaryMinus
 import kotlin.math.*
 
 class Floor(
@@ -51,7 +52,8 @@ class Floor(
             sustainRadius: Float = 5f,
             releaseRadius: Float = 8f,
             windowWidth: Float = 2.8f,
-            highlightType: HighlightType = HighlightType.Circle
+            highlightType: HighlightType = HighlightType.Circle,
+            inverted: Boolean = false
     ) {
         highlights += Highlight(
                 origin,
@@ -60,7 +62,8 @@ class Floor(
                 sustainRadius,
                 releaseRadius,
                 windowWidth,
-                highlightType
+                highlightType,
+                inverted
         )
     }
 
@@ -96,7 +99,8 @@ private class Highlight(
         val sustainRadius: Float,
         val releaseRadius: Float,
         val windowWidth: Float,
-        val type: HighlightType
+        val type: HighlightType,
+        val inverted: Boolean
 ) {
     val isDone get() = lifetime >= maxLifeTime
 
@@ -106,7 +110,8 @@ private class Highlight(
     fun highlightLevelOf(pos: Vector2): Float {
         val distanceToOrigin = type.distanceFunction(origin, pos)
         val ratio = (distanceToOrigin - sustainRadius) / (releaseRadius - sustainRadius)
-        val maxLocalIntensity = ((1f - ratio) * maxIntensity).clamp(0f, maxIntensity)
+        val possiblyInvertedRatio = if (inverted) ratio else 1f - ratio
+        val maxLocalIntensity = (possiblyInvertedRatio * maxIntensity).clamp(0f, maxIntensity)
         val dist = abs(distanceToOrigin - windowCenter)
         val intensityMultiplier = (1f - dist / windowWidth * 2f).clamp(0f, 1f)
         return maxLocalIntensity * intensityMultiplier
@@ -123,7 +128,8 @@ private class Highlight(
                 Vector2(0f, sign(d.y))
             }
         }
-        return v.normalize()
+        v.normalize()
+        return if (inverted) -v else v
     }
 
     fun update(delta: Float) {
