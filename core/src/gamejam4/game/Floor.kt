@@ -110,8 +110,7 @@ private class Highlight(
     fun highlightLevelOf(pos: Vector2): Float {
         val distanceToOrigin = type.distanceFunction(origin, pos)
         val ratio = (distanceToOrigin - sustainRadius) / (releaseRadius - sustainRadius)
-        val possiblyInvertedRatio = if (inverted) ratio else 1f - ratio
-        val maxLocalIntensity = (possiblyInvertedRatio * maxIntensity).clamp(0f, maxIntensity)
+        val maxLocalIntensity = (1f - ratio * maxIntensity).clamp(0f, maxIntensity)
         val dist = abs(distanceToOrigin - windowCenter)
         val intensityMultiplier = (1f - dist / windowWidth * 2f).clamp(0f, 1f)
         return maxLocalIntensity * intensityMultiplier
@@ -134,6 +133,7 @@ private class Highlight(
 
     fun update(delta: Float) {
         lifetime += delta
-        windowCenter = lifetime / maxLifeTime * releaseRadius
+        val ratio = if (inverted) 1f - lifetime / maxLifeTime else lifetime / maxLifeTime
+        windowCenter = ratio * releaseRadius
     }
 }

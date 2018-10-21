@@ -21,6 +21,8 @@ import ktx.graphics.use
 import ktx.math.times
 import java.util.*
 
+private const val attractionTimer = 3f
+
 class GameplayScreen : KtxScreen, InputProcessor {
 
     private val viewport = ExtendViewport(20f, 10f)
@@ -39,7 +41,22 @@ class GameplayScreen : KtxScreen, InputProcessor {
     init {
         stage.addActor(player)
         Gdx.input.inputProcessor = this
+        Timer.add(1f) {
+            floor.addFloorHighlight(
+                    origin = player.position,
+                    highlightType = HighlightType.Circle,
+                    inverted = true,
+                    maxLifeTime = 2.5f,
+                    windowWidth = 2.4f,
+                    maxIntensity = 2.2f,
+                    sustainRadius = 10f,
+                    releaseRadius = 12f
+            )
+            if (gameIsRunning) rewindTimer(attractionTimer)
+        }
     }
+
+    private val gameIsRunning get() = player.health > 0
 
     private fun update(delta: Float) {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit()
@@ -64,6 +81,8 @@ class GameplayScreen : KtxScreen, InputProcessor {
                     highlightType = type
             )
         }
+
+        Timer.update(delta)
         floor.update(delta)
         stage.act(delta)
 
@@ -104,7 +123,7 @@ class GameplayScreen : KtxScreen, InputProcessor {
     private fun draw() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
-        if (player.health > 0) {
+        if (gameIsRunning) {
             floor.drawFloorTiles()
             stage.draw()
         } else {
