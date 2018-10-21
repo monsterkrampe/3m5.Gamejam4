@@ -2,6 +2,8 @@ package gamejam4.game
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
 import ktx.math.minus
 import java.lang.Math.abs
 import kotlin.coroutines.experimental.buildIterator
@@ -77,3 +79,9 @@ val Actor.radius
     get() = this.width / 2
 
 fun Actor.intersectsCircle(actor: Actor, delta: Float = 0f) = (this.position - actor.position).len() < (this.radius + actor.radius - delta)
+
+fun Actor.removeMoveSequenceActions() {
+    actions.filter { it is SequenceAction && it.actions.any { nestedAction -> nestedAction is MoveToAction } }.forEach {
+        actions.removeValue(it, true)
+    }
+}

@@ -8,10 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
-import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction
-import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
 import ktx.math.minus
-import ktx.math.plus
 import ktx.math.vec2
 import kotlin.math.max
 
@@ -61,9 +58,7 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() 
         if (bounceVector.len() == 0f) return
 
         actionCreator {
-            actions.mapNotNull { it as? SequenceAction }.filter { it.actions.any { it is MoveToAction } }.forEach {
-                actions.removeValue(it, true)
-            }
+            removeMoveSequenceActions()
             moveTo(x + bounceVector.x, y + bounceVector.y)
         }
     }
