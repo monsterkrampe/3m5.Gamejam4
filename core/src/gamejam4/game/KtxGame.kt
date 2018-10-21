@@ -260,8 +260,10 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
         }
 
         var currentPlayerSpeed = playerSpeed
+        player.setColor(1f, 1f, 1f, 1f)
         if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
             currentPlayerSpeed = playerSpeedShooting
+            player.setColor(0.5f, 0.5f, 0.5f, 1f)
 
             if (playerCanShot) {
                 playerShootSound.play()
