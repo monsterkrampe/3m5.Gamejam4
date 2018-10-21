@@ -26,10 +26,10 @@ const val attractionTimer = 3f
 const val linearWaveTimerShort = 2.2f
 const val linearWaveTimerLong = 5f
 
-const val playerSpeed = 3.2f
-const val playerSpeedShooting = 2f
-const val playerAttackCooldown = 0.19f
-const val playerBaseDamage = 16f
+const val playerSpeed = 3.4f
+const val playerSpeedShooting = 1.9f
+const val playerAttackCooldown = 0.18f
+const val playerBaseDamage = 18f
 const val playerShotSpeed = 5f
 const val specialMoveStartingEnergy = 7
 const val specialMoveNeededEnergy = 8
@@ -109,7 +109,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
             floor.addWave(LinearWave(
                     startPoint = player.position + Vector2(x, y),
                     endPoint = player.position + Vector2(-x,  -y),
-                    maxIntensity = 2.2f,
+                    maxIntensity = 2.4f,
                     windowWidth = 2.5f,
                     sustainRatio = 0.8f,
                     travelTime = 5f
