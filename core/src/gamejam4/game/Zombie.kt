@@ -81,6 +81,7 @@ abstract class AbstractZombie(
         stateTime += Gdx.graphics.deltaTime
         val sprite = animation.getKeyFrame(stateTime, true)
         sprite.setScale((1 / sprite.width) * scaleX, (1 / sprite.height) * scaleY)
+        sprite.color = color
         sprite.rotation = rotation
         sprite.setCenter(x, y)
         sprite.draw(batch)
