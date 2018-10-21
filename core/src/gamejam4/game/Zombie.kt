@@ -16,6 +16,7 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() 
     protected val sprite = Sprite(Texture("zombie.png"))
     val speed: Float = 0.3f
     var health: Float = 100f
+    var isDead = false
     private val attackDamage: Float = 10f
     private val attackRange: Float = 1f
 

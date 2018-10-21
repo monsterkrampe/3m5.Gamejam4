@@ -37,6 +37,7 @@ class GameplayScreen : KtxScreen {
     private val floor = Floor(stage)
     private val random = Random()
     private var bulletCooldown = 0f
+    private var score = 0
 
     init {
         stage.addActor(player)
@@ -70,7 +71,7 @@ class GameplayScreen : KtxScreen {
 
         handleInput(delta)
         stage.camera.position.set(player.x, player.y , stage.camera.position.z)
-        
+
         for (zombie in zombies) {
             floor.waveNormalVectorAt(zombie.position)?.let{
                 zombie.bounceToDirection(it * delta)
@@ -83,7 +84,8 @@ class GameplayScreen : KtxScreen {
                     val dmgRate = it.vec.nor().dot(distVec.nor())
                     zombie.health = max(zombie.health - dmgRate * 25f, 0f)
 
-                    if (zombie.health <= 0) {
+                    if (zombie.health <= 0 && !zombie.isDead) {
+                        zombie.isDead = true
                         zombie.clearActions()
 
                         zombie.addAction(
@@ -95,7 +97,10 @@ class GameplayScreen : KtxScreen {
                                         removeActor()
                                 )
                         )
+
+                        score++
                     }
+
                     it.remove()
                 }
             }
@@ -113,6 +118,11 @@ class GameplayScreen : KtxScreen {
                 font.data.setScale(2f)
                 font.draw(it, "Game Over", 500f, 400f)
             }
+        }
+
+        batch.use {
+            font.data.setScale(1.5f)
+            font.draw(it, "Score: 0x" + score.toString(16), 10f, 20f)
         }
     }
 
