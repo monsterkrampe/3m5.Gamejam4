@@ -13,17 +13,14 @@ abstract class AbstractZombie(
         y: Float,
         private val sprites: List<Sprite>,
         private val player: Player,
-        val timer: Timer
+        private val timer: Timer
 ) : Actor() {
-    val speed: Float = 3f
     var health: Float = 100f
     var isDead = false
-    private val attackDamage: Float = 10f
-    private val attackRange: Float = 1f
     private var canAttack = true
 
     private var spriteIndex = 0
-    val sprite get() = sprites[spriteIndex]
+    private val sprite get() = sprites[spriteIndex]
 
     init {
         setBounds(0f, 0f, 1f, 1f)
@@ -44,7 +41,7 @@ abstract class AbstractZombie(
         val distanceVector = vec2(player.x, player.y) - vec2(this.x, this.y)
         val distance = distanceVector.len()
 
-        if (distance <= attackRange) {
+        if (distance <= zombieAttackRange) {
             attack()
         } else {
             move(delta)
@@ -53,9 +50,9 @@ abstract class AbstractZombie(
 
     fun attack() {
         if (canAttack) {
-            player.health = max(player.health - attackDamage, 0f)
+            player.health = max(player.health - zombieAttackDamage, 0f)
             canAttack = false
-            timer.add(1f) {
+            timer.add(zombieAttackCooldown) {
                 canAttack = true
             }
         }
@@ -63,7 +60,7 @@ abstract class AbstractZombie(
 
     fun move(delta: Float) {
         val moveVector = vec2(player.x - x, player.y - y)
-        moveVector.setLength(speed * delta)
+        moveVector.setLength(zombieSpeed * delta)
         rotation = moveVector.angle()
         setPosition(x + moveVector.x, y + moveVector.y)
     }

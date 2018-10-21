@@ -15,16 +15,22 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
-import ktx.math.minus
-import ktx.math.plus
 import ktx.graphics.use
-import ktx.math.times
-import ktx.math.vec2
+import ktx.math.*
 import java.util.*
 import kotlin.math.max
 
-private const val attractionTimer = 3f
-private const val wavePushMultiplier = 0.3f
+const val attractionTimer = 3f
+
+const val playerSpeed = 3.5f
+const val playerAttackCooldown = 0.3f
+const val playerShotSpeed = 5f
+
+const val wavePushMultiplier = 1.5f
+const val zombieSpeed = 2.2f
+const val zombieAttackCooldown = 1.3f
+const val zombieAttackDamage = 10f
+const val zombieAttackRange = 1f
 
 class GameplayScreen : KtxScreen {
 
@@ -38,7 +44,6 @@ class GameplayScreen : KtxScreen {
 
     private val player = Player(
             sprites = (1..6).map { Sprite(Texture("player$it.png")) },
-            speed = 3.3f,
             highlightLevelGetter = { floor.waveIntensityAt(it) }
     )
     private val zombieManager = ZombieManager(timer)
@@ -200,7 +205,7 @@ class GameplayScreen : KtxScreen {
             else 0f
 
             val vec = Vector2(leftRight, upDown)
-            vec.setLength(delta * player.speed)
+            vec.setLength(delta * playerSpeed)
 
             player.position = player.position + vec
         }
@@ -209,17 +214,17 @@ class GameplayScreen : KtxScreen {
             val xPos = Gdx.input.x.toFloat()
             val yPos = Gdx.input.y.toFloat()
             createBullet(
-                    stage.screenToStageCoordinates(vec2(xPos, yPos)) - vec2(player.x, player.y)
+                    stage.screenToStageCoordinates(vec2(xPos, yPos)) - player.position
             )
             playerCanShot = false
-            timer.add(0.5f) {
+            timer.add(playerAttackCooldown) {
                 playerCanShot = true
             }
         }
     }
 
     private fun createBullet(vec: Vector2) {
-        vec.normalize()
+        vec.setLength(playerShotSpeed)
         val bullet = Bullet(vec)
         val offsetVector = vec.clone()
         offsetVector.setLength(player.width / 2)

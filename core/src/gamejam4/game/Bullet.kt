@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.MoveByAction
 
 data class Bullet(val vec: Vector2) : Actor() {
     private val texture = Texture("bullet.png")
+    private val actionLength = 0.1f
 
     init {
         setBounds(0f, 0f, 0.2f, 0.2f)
@@ -16,8 +17,8 @@ data class Bullet(val vec: Vector2) : Actor() {
         setPosition(x, y)
 
         val action = MoveByAction()
-        action.setAmount(vec.x, vec.y)
-        action.duration = 0.3f
+        action.setAmount(vec.x * actionLength, vec.y * actionLength)
+        action.duration = actionLength
         addAction(forever(action))
     }
 

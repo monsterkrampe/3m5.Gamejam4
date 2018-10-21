@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 
 data class Player(
         val sprites: List<Sprite>,
-        val speed: Float,
         val highlightLevelGetter: (Vector2) -> Float
 ) : Actor() {
     var health = 100f
