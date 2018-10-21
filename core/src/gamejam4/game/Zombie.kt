@@ -3,6 +3,7 @@ package gamejam4.game
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
@@ -24,7 +25,7 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
 
         sprite.setScale(1 / sprite.width, 1 / sprite.height)
         sprite.setOriginCenter()
-        
+
         addActionListener()
     }
 
@@ -47,13 +48,9 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
         ))
     }
 
-    fun bounceToDirection(angle: Float) {
-        val bounceVector = vec2(5f)
-        bounceVector.setAngle(angle)
-
-        val newPosVec = vec2(x, y) + bounceVector
-        setPosition(newPosVec.x, newPosVec.y)
-
+    fun bounceToDirection(bounceVector: Vector2) {
+        clearActions()
+        setPosition(x + bounceVector.x, y + bounceVector.y)
         addActionListener()
     }
 

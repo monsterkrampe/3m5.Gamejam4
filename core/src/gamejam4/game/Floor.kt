@@ -64,10 +64,10 @@ class Floor(
         )
     }
 
-    fun waveNormalVectorAt(pos: Vector2): Vector2 = highlights
-            .asSequence()
+    fun waveNormalVectorAt(pos: Vector2): Vector2? = highlights
             .map { it.normalAt(pos) * it.highlightLevelOf(pos) }
-            .reduce { a, b -> a + b }
+            .let { if (it.isEmpty()) null else it }
+            ?.reduce { a, b -> a + b }
 
     fun waveIntensityAt(pos: Vector2): Float = highlights
             .asSequence()

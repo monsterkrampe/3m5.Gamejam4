@@ -18,6 +18,7 @@ import ktx.app.KtxScreen
 import ktx.math.minus
 import ktx.math.plus
 import ktx.graphics.use
+import ktx.math.times
 import java.util.*
 
 class GameplayScreen : KtxScreen, InputProcessor {
@@ -30,9 +31,10 @@ class GameplayScreen : KtxScreen, InputProcessor {
     private val font = BitmapFont()
 
     private val playerSprite = Texture("player.png")
-    private val player = Player(playerSprite, 1.5f)
+    private val player = Player(playerSprite, 10.5f)
     private val zombieManager = ZombieManager()
     private val floor = Floor(stage)
+    private val random = Random()
 
     init {
         stage.addActor(player)
@@ -42,15 +44,16 @@ class GameplayScreen : KtxScreen, InputProcessor {
     private fun update(delta: Float) {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit()
 
-        val randomFloat = Random().nextFloat()
+        val bullets = stage.actors.mapNotNull { it as? Bullet }
+        val zombies = stage.actors.mapNotNull { it as? Zombie }
 
-        if (randomFloat < 0.01 && stage.actors.filter{it is Zombie}.size < 1000) {
+        if (random.nextFloat() < 0.01 && zombies.size < 1000) {
             // should spawn Zombie near player
             stage.addActor(zombieManager.spawnZombieNear(player))
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            val ran = Random().nextFloat() * 3f
+            val ran = random.nextFloat() * 3f
             val type = when {
                 ran < 1f -> HighlightType.Circle
                 ran < 2f -> HighlightType.Diamond
@@ -67,34 +70,35 @@ class GameplayScreen : KtxScreen, InputProcessor {
         handleInput(delta)
         stage.camera.position.set(player.x, player.y , stage.camera.position.z)
 
-        val bullets = stage.actors.mapNotNull { it as? Bullet }
-        val zombies = stage.actors.mapNotNull { it as? Zombie }
-
-        zombies.forEach { zombie -> bullets.forEach {
-            if (it.intersectsCircle(zombie, 0.2f)) {
-
-                val distVec = Vector2(zombie.x - it.x, zombie.y - it.y)
-
-                val dmgRate = it.vec.nor().dot(distVec.nor())
-                zombie.health -= dmgRate * 25f
-
-                if (zombie.health <= 0) {
-                    zombie.clearActions()
-
-                    zombie.addAction(
-                            sequence(
-                                    repeat(2 * 60, sequence(
-                                            delay(1f / 60),
-                                            rotateBy(20f)
-                                    )),
-                                    removeActor()
-                            )
-                    )
-                }
-
-                it.remove()
+        for (zombie in zombies) {
+            floor.waveNormalVectorAt(zombie.position)?.let{
+                zombie.bounceToDirection(it * delta)
             }
-        } }
+
+            for (it in bullets) {
+                if (it.intersectsCircle(zombie, 0.2f)) {
+                    val distVec = Vector2(zombie.x - it.x, zombie.y - it.y)
+
+                    val dmgRate = it.vec.nor().dot(distVec.nor())
+                    zombie.health -= dmgRate * 25f
+
+                    if (zombie.health <= 0) {
+                        zombie.clearActions()
+
+                        zombie.addAction(
+                                sequence(
+                                        repeat(2 * 60, sequence(
+                                                delay(1f / 60),
+                                                rotateBy(20f)
+                                        )),
+                                        removeActor()
+                                )
+                        )
+                    }
+                    it.remove()
+                }
+            }
+        }
     }
 
     private fun draw() {
