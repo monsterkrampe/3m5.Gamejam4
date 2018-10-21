@@ -16,10 +16,15 @@ class ZombieManager(val timer: Timer) {
 
         val x = player.x + distanceVector.x
         val y = player.y + distanceVector.y
-        return if (Random().nextFloat() < 0.8) {
+        val randomType = Random().nextFloat()
+        return if (randomType < 0.4) {
             DefaultZombie(x, y, sprites, player, timer)
-        } else {
+        } else if (randomType < 0.7){
             BigZombie(x, y, sprites, player, timer)
+        } else if (randomType < 0.9){
+            SmallZombie(x, y, sprites, player, timer)
+        } else {
+            HugeZombie(x, y, sprites, player, timer)
         }
     }
 }
