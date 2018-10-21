@@ -123,10 +123,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
 
                         zombie.addAction(
                                 sequence(
-                                        repeat(2 * 60, sequence(
-                                                delay(1f / 60),
-                                                rotateBy(20f)
-                                        )),
+                                        color(color(0f, 0f, 0f, 0f), 1f),
                                         removeActor()
                                 )
                         )
@@ -135,7 +132,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
                         if (specialMoveEnergy < specialMoveNeededEnergy) {
                             specialMoveEnergy++
                         }
-                    } else {
+                    } else if (!zombie.isDead) {
                         zombie.addAction(
                                 sequence(
                                         color(color(0.5f, 1f, 1f, 1f)),
