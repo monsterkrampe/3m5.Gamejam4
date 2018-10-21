@@ -26,7 +26,7 @@ import kotlin.math.max
 private const val attractionTimer = 3f
 private const val wavePushMultiplier = 0.3f
 
-class GameplayScreen : KtxScreen {
+class GameplayScreen(val game: TheGame) : KtxScreen {
 
     private val timer = Timer()
     private val viewport = ExtendViewport(20f, 10f)
@@ -134,6 +134,10 @@ class GameplayScreen : KtxScreen {
                 }
             }
         }
+
+        if (!gameIsRunning) {
+            game.menu(PreviousGameResult(score))
+        }
     }
 
     private fun randomWaveType() = CircularWaveType
@@ -157,15 +161,8 @@ class GameplayScreen : KtxScreen {
     private fun draw() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
-        if (gameIsRunning) {
-            floor.drawFloorTiles()
-            stage.draw()
-        } else {
-            batch.use {
-                font.data.setScale(2f)
-                font.draw(it, "Game Over", 500f, 400f)
-            }
-        }
+        floor.drawFloorTiles()
+        stage.draw()
 
         batch.use {
             font.data.setScale(1.5f)
@@ -192,8 +189,6 @@ class GameplayScreen : KtxScreen {
                     maxIntensity = 3.9f
             )
         }
-
-        bulletCooldown = max(bulletCooldown - delta, 0f)
 
         player.apply {
             val w = Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)
@@ -247,14 +242,22 @@ class GameplayScreen : KtxScreen {
 class TheGame : KtxGame<Screen>() {
 
     override fun create() {
-        addScreen(MenuScreen(this))
+        addScreen(MenuScreen(this, null))
         setScreen<MenuScreen>()
     }
 
     fun start() {
         Gdx.input.inputProcessor = null
         screens.clear()
-        addScreen(GameplayScreen())
+        addScreen(GameplayScreen(this))
         setScreen<GameplayScreen>()
     }
+
+    fun menu(previousGameResult: PreviousGameResult?) {
+        screens.clear()
+        addScreen(MenuScreen(this, previousGameResult))
+        setScreen<MenuScreen>()
+    }
 }
+
+data class PreviousGameResult(val score: Int)
