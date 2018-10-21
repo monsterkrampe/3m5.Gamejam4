@@ -24,13 +24,19 @@ import kotlin.math.max
 const val attractionTimer = 3f
 
 const val playerSpeed = 3.5f
-const val playerAttackCooldown = 0.3f
+const val playerSpeedShooting = 2f
+const val playerAttackCooldown = 0.2f
+const val playerBaseDamage = 30f
 const val playerShotSpeed = 5f
 const val specialMoveStartingEnergy = 7
 const val specialMoveNeededEnergy = 8
 
 const val wavePushMultiplier = 1.5f
 const val zombieSpeed = 2.2f
+const val hugeZombieSpeed = 2f
+const val smallZombieSpeed = 3.5f
+const val hugeZombieHealth = 500f
+const val smallZombieHealth = 75f
 const val zombieAttackCooldown = 1.3f
 const val zombieAttackDamage = 10f
 const val zombieAttackRange = 1f
@@ -130,7 +136,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
                     val distVec = Vector2(zombie.x - it.x, zombie.y - it.y)
 
                     val dmgRate = it.vec.nor().dot(distVec.nor())
-                    zombie.health = max(zombie.health - dmgRate * 25f, 0f)
+                    zombie.health = max(zombie.health - dmgRate * playerBaseDamage, 0f)
 
                     if (zombie.health <= 0 && !zombie.isDead) {
                         enemyDeathSound.play()
@@ -224,6 +230,24 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
             )
         }
 
+        var currentPlayerSpeed = playerSpeed
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            currentPlayerSpeed = playerSpeedShooting
+
+            if (playerCanShot) {
+                playerShootSound.play()
+                val xPos = Gdx.input.x.toFloat()
+                val yPos = Gdx.input.y.toFloat()
+                createBullet(
+                        stage.screenToStageCoordinates(vec2(xPos, yPos)) - player.position
+                )
+                playerCanShot = false
+                timer.add(playerAttackCooldown) {
+                    playerCanShot = true
+                }
+            }
+        }
+
         player.apply {
             val w = Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)
             val a = Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)
@@ -239,22 +263,9 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
             else 0f
 
             val vec = Vector2(leftRight, upDown)
-            vec.setLength(delta * playerSpeed)
+            vec.setLength(delta * currentPlayerSpeed)
 
             player.position = player.position + vec
-        }
-
-        if (playerCanShot && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-            playerShootSound.play()
-            val xPos = Gdx.input.x.toFloat()
-            val yPos = Gdx.input.y.toFloat()
-            createBullet(
-                    stage.screenToStageCoordinates(vec2(xPos, yPos)) - player.position
-            )
-            playerCanShot = false
-            timer.add(playerAttackCooldown) {
-                playerCanShot = true
-            }
         }
     }
 
