@@ -158,7 +158,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
                                 playerSpecialReadySound.play()
                             }
                         }
-                    } else {
+                    } else if (!zombie.isDead) {
                         enemyHitSound.play()
                         zombie.addAction(
                                 sequence(
