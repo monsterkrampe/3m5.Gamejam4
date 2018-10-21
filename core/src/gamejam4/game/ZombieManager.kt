@@ -12,9 +12,9 @@ class ZombieManager {
     fun spawnZombieNear(player: Player) : Actor {
         val randomMinusX = if (Random().nextBoolean()) 1 else -1
         val randomMinusY = if (Random().nextBoolean()) 1 else -1
-        val randomX = Random().nextFloat() * 3
-        val randomY = Random().nextFloat() * 3
-        val zombie = Zombie(player.x + randomMinusX * (1f + randomX), player.y + randomMinusY * (1f + randomY), player)
+        val randomX = Random().nextFloat() * 5
+        val randomY = Random().nextFloat() * 5
+        val zombie = Zombie(player.x + randomMinusX * (4f + randomX), player.y + randomMinusY * (4f + randomY), player)
         zombies.add(zombie)
         return zombie
     }

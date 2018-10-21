@@ -29,7 +29,7 @@ class GameplayScreen : KtxScreen, InputProcessor {
     private val font = BitmapFont()
 
     private val playerSprite = Texture("player.png")
-    private val player = Player(playerSprite, 2f)
+    private val player = Player(playerSprite, 1.5f)
     private val zombieManager = ZombieManager()
     private val floor = Floor(stage)
 
@@ -43,7 +43,7 @@ class GameplayScreen : KtxScreen, InputProcessor {
 
         val randomFloat = Random().nextFloat()
 
-        if (randomFloat < 0.02 && stage.actors.filter{it is Zombie}.size < 10) {
+        if (randomFloat < 0.01 && stage.actors.filter{it is Zombie}.size < 1000) {
             // should spawn Zombie near player
             stage.addActor(zombieManager.spawnZombieNear(player))
         }

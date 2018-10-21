@@ -12,11 +12,11 @@ import ktx.math.vec2
 
 class Zombie(x: Float, y: Float, val player: Player) : Actor() {
     private val sprite = Sprite(Texture("zombie.png"))
-    val speed: Float = 1f
+    val speed: Float = 2f
     var actionInProgress = false
     private var health: Float = 100f
     private val attackDamage: Float = 10f
-    private val attackRange: Float = 0.1f
+    private val attackRange: Float = 1f
 
     init {
         setBounds(0f, 0f, 1f, 1f)
@@ -26,7 +26,7 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
         sprite.setScale(1 / sprite.width, 1 / sprite.height)
         sprite.setOriginCenter()
         
-        addAction(forever(sequence(Actions.run {
+        addAction(forever(Actions.run {
             if (actionInProgress) return@run
             actionInProgress = true
 
@@ -36,7 +36,7 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
             val endAction = Actions.run { actionInProgress = false }
 
             val moveAction = sequence(Actions.run { rotation = distanceVector.angle() }, moveTo(player.x, player.y, distance / speed), endAction)
-            val attackAction = sequence(Actions.run { attack() }, delay(2f), endAction)
+            val attackAction = sequence(Actions.run { attack() }, delay(1f), endAction)
             val resetActionInProgressAfterDelay = sequence(delay(0.5f), endAction)
 
             if (distance <= attackRange) {
@@ -44,7 +44,7 @@ class Zombie(x: Float, y: Float, val player: Player) : Actor() {
             } else {
                 addAction(parallel(moveAction, resetActionInProgressAfterDelay))
             }
-        })))
+        }))
     }
 
     fun attack() {
