@@ -36,6 +36,17 @@ const val zombieAttackRange = 1f
 
 class GameplayScreen(val game: TheGame) : KtxScreen {
 
+    private val startSound = sound("sound/start.wav")
+    private val endSound = sound("sound/game over.wav")
+
+    private val playerHitSound = sound("sound/player hit.wav")
+    private val playerShootSound = sound("sound/shot.wav", 0.25f)
+    private val playerSpecialReadySound = sound("sound/special ready.wav")
+    private val playerSpecialUsedSound = sound("sound/special.wav")
+
+    private val enemyHitSound = sound("sound/enemy hit.wav", 0.8f)
+    private val enemyDeathSound = sound("sound/enemy death.wav", 0.8f)
+
     private val timer = Timer()
     private val viewport = ExtendViewport(20f, 10f)
     private val stage = Stage(viewport)
@@ -46,7 +57,9 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
 
     private val player = Player(
             sprites = (1..6).map { Sprite(Texture("player$it.png")) },
-            highlightLevelGetter = { floor.waveIntensityAt(it) }
+            highlightLevelGetter = { floor.waveIntensityAt(it) },
+            onHit = { playerHitSound.play() },
+            onDeath = { endSound.play() }
     )
     private val zombieManager = ZombieManager(timer)
     private val floor = Floor(stage)
@@ -81,6 +94,9 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
             ))
             if (gameIsRunning) rewindTimer(2f)
         }
+        timer.add(0.1f) {
+            startSound.play()
+        }
     }
 
     private val gameIsRunning get() = player.health > 0
@@ -91,7 +107,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
         val bullets = stage.actors.mapNotNull { it as? Bullet }
         val zombies = stage.actors.mapNotNull { it as? AbstractZombie }
 
-        if (random.nextFloat() < 0.005 + score * 0.001  && zombies.size < 1000) {
+        if (random.nextFloat() < 0.005 + score * 0.001 && zombies.size < 1000) {
             // should spawn Zombie near player
             stage.addActor(zombieManager.spawnZombieNear(player))
         }
@@ -116,6 +132,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
                     zombie.health = max(zombie.health - dmgRate * 25f, 0f)
 
                     if (zombie.health <= 0 && !zombie.isDead) {
+                        enemyDeathSound.play()
                         zombie.isDead = true
                         addZombieDeathWaves(zombie)
                         zombie.clearActions()
@@ -133,7 +150,12 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
                         score++
                         if (specialMoveEnergy < specialMoveNeededEnergy) {
                             specialMoveEnergy++
+                            if (specialMoveEnergy == specialMoveNeededEnergy) timer.add(0.4f) {
+                                playerSpecialReadySound.play()
+                            }
                         }
+                    } else {
+                        enemyHitSound.play()
                     }
 
                     it.remove()
@@ -188,6 +210,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
 
     private fun handleInput(delta: Float) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && specialMoveEnergy == specialMoveNeededEnergy) {
+            playerSpecialUsedSound.play()
             specialMoveEnergy = 0
             floor.addCircularWave(
                     origin = player.position,
@@ -217,6 +240,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
         }
 
         if (playerCanShot && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            playerShootSound.play()
             val xPos = Gdx.input.x.toFloat()
             val yPos = Gdx.input.y.toFloat()
             createBullet(

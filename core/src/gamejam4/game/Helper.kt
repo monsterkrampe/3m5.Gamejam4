@@ -1,5 +1,7 @@
 package gamejam4.game
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction
@@ -80,3 +82,13 @@ val Actor.radius
     get() = this.width * scaleX / 2
 
 fun Actor.intersectsCircle(actor: Actor, delta: Float = 0f) = (this.position - actor.position).len() < (this.radius + actor.radius - delta)
+
+class SoundWithVolume(val sound: Sound, val volume: Float) {
+    fun play() = sound.play(volume)
+}
+
+fun sound(path: String, volume: Float = 1f) = SoundWithVolume(
+        Gdx.audio.newSound(Gdx.files.internal(path)),
+        volume
+)
+

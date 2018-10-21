@@ -53,7 +53,7 @@ abstract class AbstractZombie(
 
     fun attack() {
         if (canAttack) {
-            player.health = max(player.health - zombieAttackDamage, 0f)
+            player.damage(zombieAttackDamage)
             canAttack = false
             timer.add(zombieAttackCooldown) {
                 canAttack = true

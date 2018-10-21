@@ -13,6 +13,10 @@ import ktx.app.KtxScreen
 import ktx.graphics.use
 
 class MenuScreen(val game: TheGame, val previousGameResult: PreviousGameResult?) : KtxScreen, InputProcessor {
+
+    private val blip1Sound = sound("sound/menu blip.wav")
+    private val blip2Sound = sound("sound/menu blip 2.wav")
+
     private val stage = Stage(ExtendViewport(20f, 10f))
     private val floor = Floor(stage)
     private val timer = Timer()
@@ -80,21 +84,23 @@ class MenuScreen(val game: TheGame, val previousGameResult: PreviousGameResult?)
     private fun menuYPosition(index: Int) = Gdx.graphics.height * 0.61f - index * 64f
 
     override fun keyDown(keycode: Int): Boolean {
-        var selected = false
+        var selectionType: CircularWaveType? = null
 
         when (keycode) {
             Input.Keys.W, Input.Keys.UP -> {
                 items.backward()
-                selected = true
+                blip2Sound.play()
+                selectionType = CircularWaveType.Circle
             }
             Input.Keys.S, Input.Keys.DOWN -> {
                 items.forward()
-                selected = true
+                blip1Sound.play()
+                selectionType = CircularWaveType.Square
             }
             Input.Keys.ENTER -> items.current.callback.invoke(game)
         }
 
-        if (selected) {
+        if (selectionType != null) {
             floor.addWave(CircularWave(
                     origin = stage.screenToStageCoordinates(Vector2(120f, stage.viewport.screenHeight - menuYPosition(items.index))),
                     maxLifeTime = 1.2f,
@@ -103,7 +109,7 @@ class MenuScreen(val game: TheGame, val previousGameResult: PreviousGameResult?)
                     releaseRadius = 8f,
                     windowWidth = 2.8f,
                     inverted = false,
-                    type = CircularWaveType.Circle
+                    type = selectionType
             ))
         }
 

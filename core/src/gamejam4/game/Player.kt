@@ -4,10 +4,13 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
+import kotlin.math.max
 
 data class Player(
         val sprites: List<Sprite>,
-        val highlightLevelGetter: (Vector2) -> Float
+        val highlightLevelGetter: (Vector2) -> Float,
+        val onHit: () -> Unit,
+        val onDeath: () -> Unit
 ) : Actor() {
     var health = 100f
 
@@ -15,6 +18,15 @@ data class Player(
         setBounds(0f, 0f, 1f, 1f)
         setOrigin(0.5f, 0.5f)
         setPosition(x, y)
+    }
+
+    fun damage(damage: Float) {
+        health = max(health - damage, 0f)
+        if (health > 0f) {
+            onHit()
+        } else {
+            onDeath()
+        }
     }
 
     override fun draw(batch: Batch, parentAlpha: Float) {
