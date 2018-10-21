@@ -184,10 +184,10 @@ class GameplayScreen : KtxScreen {
         bulletCooldown = max(bulletCooldown - delta, 0f)
 
         player.apply {
-            val w = Gdx.input.isKeyPressed(Input.Keys.W)
-            val a = Gdx.input.isKeyPressed(Input.Keys.A)
-            val s = Gdx.input.isKeyPressed(Input.Keys.S)
-            val d = Gdx.input.isKeyPressed(Input.Keys.D)
+            val w = Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)
+            val a = Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)
+            val s = Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)
+            val d = Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)
 
             val upDown = if (w xor s)
                 if (w) 1f else -1f
