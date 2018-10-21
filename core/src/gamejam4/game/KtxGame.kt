@@ -173,6 +173,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
                             }
                         }
                     } else if (!zombie.isDead) {
+                        zombie.bounceToDirection(it.vec * 0.3f)
                         enemyHitSound.play()
                         zombie.addAction(
                                 sequence(
