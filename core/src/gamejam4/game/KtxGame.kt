@@ -25,6 +25,8 @@ const val attractionTimer = 3f
 const val playerSpeed = 3.5f
 const val playerAttackCooldown = 0.3f
 const val playerShotSpeed = 5f
+const val specialMoveStartingEnergy = 7
+const val specialMoveNeededEnergy = 8
 
 const val wavePushMultiplier = 1.5f
 const val zombieSpeed = 2.2f
@@ -51,8 +53,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
     private val random = Random()
     private var playerCanShot = true
     private var score = 0
-    private var specialMoveEenergy = 5
-    private val specialMoveNeededEnergy = 10
+    private var specialMoveEnergy = specialMoveStartingEnergy
 
     init {
         stage.addActor(player)
@@ -130,8 +131,8 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
                         )
 
                         score++
-                        if (specialMoveEenergy < specialMoveNeededEnergy) {
-                            specialMoveEenergy++
+                        if (specialMoveEnergy < specialMoveNeededEnergy) {
+                            specialMoveEnergy++
                         }
                     }
 
@@ -172,7 +173,7 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
         batch.use {
             font.data.setScale(1.5f)
             font.draw(it, "Score: 0x" + score.toString(16), 10f, 20f)
-            font.draw(it, "Energy: " + specialMoveEenergy.toString() + " / " + specialMoveNeededEnergy.toString(), 10f, 45f)
+            font.draw(it, "Energy: " + specialMoveEnergy.toString() + " / " + specialMoveNeededEnergy.toString(), 10f, 45f)
         }
     }
 
@@ -186,8 +187,8 @@ class GameplayScreen(val game: TheGame) : KtxScreen {
     }
 
     private fun handleInput(delta: Float) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && specialMoveEenergy == specialMoveNeededEnergy) {
-            specialMoveEenergy = 0
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && specialMoveEnergy == specialMoveNeededEnergy) {
+            specialMoveEnergy = 0
             floor.addCircularWave(
                     origin = player.position,
                     type = randomWaveType(),
