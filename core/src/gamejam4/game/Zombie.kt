@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.Actions.*
@@ -30,30 +31,41 @@ abstract class AbstractZombie(x: Float, y: Float, val player: Player) : Actor() 
         addActionListener()
     }
 
-    fun attack() {
-        player.health = max(player.health - attackDamage, 0f)
+    fun actionCreator(parallelAction: Boolean = false, function: () -> Action) {
+        if (health > 0) {
+            val action = function()
+            if (parallelAction) {
+                addAction(parallel(action, Actions.run {
+                    addActionListener()
+                }))
+            } else {
+                addAction(sequence(action, Actions.run {
+                    addActionListener()
+                }))
+            }
+        }
+    }
 
-        addAction(sequence(delay(1f), Actions.run {
-            addActionListener()
-        }))
+    fun attack() {
+        actionCreator {
+            sequence(Actions.run { player.health = max(player.health - attackDamage, 0f) }, delay(1f))
+        }
     }
 
     fun move() {
-        val moveVector = vec2(player.x - x, player.y - y)
-        moveVector.setLength(speed)
-        rotation = moveVector.angle()
-        addAction(sequence(
-                moveTo(x + moveVector.x, y + moveVector.y, 0.1f),
-                Actions.run {
-                    addActionListener()
-                }
-        ))
+        actionCreator {
+            val moveVector = vec2(player.x - x, player.y - y)
+            moveVector.setLength(speed)
+            rotation = moveVector.angle()
+            moveTo(x + moveVector.x, y + moveVector.y, 0.1f)
+        }
     }
 
     fun bounceToDirection(bounceVector: Vector2) {
-        clearActions()
-        setPosition(x + bounceVector.x, y + bounceVector.y)
-        addActionListener()
+        actionCreator(true) {
+            clearActions()
+            moveTo(x + bounceVector.x, y + bounceVector.y, 0f)
+        }
     }
 
     private fun addActionListener() {
