@@ -78,7 +78,7 @@ class MenuScreen(val game: TheGame, val previousGameResult: PreviousGameResult?)
             font.data.setScale(1.0f)
 
             font.draw(it, "Selection [W] and [S] or Up and Down arrow keys, [Enter] start or quit", 60f, 75f)
-            font.draw(it, "Gameplay [W] [A] [S] {D] for movement, [LButton} for shooting, [SPCAE] for special skill", 60f, 55f)
+            font.draw(it, "Gameplay [W] [A] [S] [D] for movement, [LButton] for shooting, [SPACE] for special skill", 60f, 55f)
 
             if (previousGameResult != null) {
                 font.data.setScale(3.8f)
