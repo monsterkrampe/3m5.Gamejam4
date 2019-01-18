@@ -105,7 +105,7 @@ class MenuScreen(val game: TheGame, val previousGameResult: PreviousGameResult?)
                 blip1Sound.play()
                 selectionType = CircularWaveType.Square
             }
-            Input.Keys.ENTER -> items.current.callback.invoke(game)
+            Input.Keys.ENTER, Input.Keys.SPACE -> items.current.callback.invoke(game)
         }
 
         if (selectionType != null) {
